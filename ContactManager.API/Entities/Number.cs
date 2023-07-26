@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ContactManager.API.Entities
 {
-    public class Address
+    public class Number
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -14,7 +14,7 @@ namespace ContactManager.API.Entities
         public int ContactId { get; set; }
 
         [Required]
-        public AddressType Type { get; set; }
+        public NumberType Type { get; set; }
 
         [Required]
         [StringLength(100)]
@@ -22,11 +22,12 @@ namespace ContactManager.API.Entities
 
     }
 
-    public enum AddressType
+    public enum NumberType
     {
-        Billing,
-        Delivery,
+        Mobile,
+        Landline,
         Home,
-        Work
+        Work,
+        School
     }
 }
