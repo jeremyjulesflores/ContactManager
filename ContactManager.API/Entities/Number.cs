@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using static ContactManager.API.Entities.Types;
 
 namespace ContactManager.API.Entities
 {
@@ -22,12 +23,4 @@ namespace ContactManager.API.Entities
 
     }
 
-    public enum NumberType
-    {
-        Mobile,
-        Landline,
-        Home,
-        Work,
-        School
-    }
 }

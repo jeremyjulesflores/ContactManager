@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using static ContactManager.API.Entities.Types;
 
 namespace ContactManager.API.Entities
 {
@@ -22,11 +23,6 @@ namespace ContactManager.API.Entities
 
     }
 
-    public enum EmailType
-    {
-        Work,
-        Home,
-        School
-    }
+
       
 }
