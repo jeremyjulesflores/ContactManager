@@ -1,9 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 
 namespace ContactManager.API.Entities
 {
-    public class Number
+    public class Email
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -14,20 +14,19 @@ namespace ContactManager.API.Entities
         public int ContactId { get; set; }
 
         [Required]
-        public NumberType Type { get; set; }
+        public EmailType Type { get; set; }
 
         [Required]
         [StringLength(100)]
-        public string NumberDetails { get; set; }
+        public string EmailAddress { get; set; }
 
     }
 
-    public enum NumberType
+    public enum EmailType
     {
-        Mobile,
-        Landline,
-        Home,
         Work,
+        Home,
         School
     }
+      
 }

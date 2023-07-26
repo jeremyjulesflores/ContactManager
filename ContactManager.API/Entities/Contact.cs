@@ -24,5 +24,8 @@ namespace ContactManager.API.Entities
 
         //Numbers for the contact
         public List<Number>? Numbers { get; set; }
+
+        //Emails for the contact
+        public List<Email>? Emails { get; set; }
     }
 }
