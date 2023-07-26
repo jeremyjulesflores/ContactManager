@@ -17,8 +17,8 @@ namespace ContactManager.API.Entities
         public NumberType Type { get; set; }
 
         [Required]
-        [StringLength(100)]
-        public string NumberDetails { get; set; }
+        [MaxLength(15)]
+        public string ContactNumber { get; set; }
 
     }
 
