@@ -1,4 +1,6 @@
+using ContactManager.API.DbContexts;
 using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration()
@@ -26,6 +28,7 @@ builder.Services.AddControllers(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddDbContext<ContactInfoContext>(dbContextOptions => dbContextOptions.UseSqlite("Data Source = ContactInfo.db"));
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
