@@ -11,16 +11,35 @@ namespace ContactManager.API.Controllers
     [ApiController]
     public class AddressesController : ControllerBase
     {
+        private readonly ILogger<AddressesController> _logger;
+
+        public AddressesController(ILogger<AddressesController> logger)
+        {
+            this._logger = logger ?? throw new ArgumentException(nameof(logger));
+        }
+
         [HttpGet]
         public ActionResult<IEnumerable<AddressDto>> GetAddresses(int contactId)
         {
-            var contact = ContactsDataStore.Current.Contacts.FirstOrDefault(c => c.Id == contactId);
-
-            if(contact == null)
+            try
             {
-                return NotFound();
+                throw new Exception("Exception Sample");
+                var contact = ContactsDataStore.Current.Contacts.FirstOrDefault(c => c.Id == contactId);
+
+                if (contact == null)
+                {
+                    _logger.LogInformation($"Contact with id {contactId} wasn't found.");
+                    return NotFound();
+                }
+                return Ok(contact.Addresses);
             }
-            return Ok(contact.Addresses);
+            catch(Exception ex)
+            {
+                _logger.LogCritical(
+                    $"Exception while getting Addresses for contact with id {contactId}.", ex);
+                return StatusCode(500, "A problem happened while handling your request.");
+            }
+            
         }
 
         [HttpGet("{addressId}", Name = "GetAddress")]
@@ -130,7 +149,8 @@ namespace ContactManager.API.Controllers
             {
                 return BadRequest(ModelState);
             }
-
+            //Check if Model is correct
+            //If Request is invalid it will return false and return a Bad Requet
             if (!TryValidateModel(addressToPatch))
             {
                 return BadRequest(ModelState);
@@ -139,6 +159,28 @@ namespace ContactManager.API.Controllers
             addressFromStore.Type = addressToPatch.Type;
             addressFromStore.AddressDetails = addressToPatch.AddressDetails;
 
+            return NoContent();
+        }
+
+        [HttpDelete("{addressId}")]
+        //[ValidateAntiForgeryToken] //Idk autocompleted
+        public ActionResult DeleteAddress(int contactId,
+                                          int addressId)
+        {
+            var contact = ContactsDataStore.Current.Contacts.FirstOrDefault(c => c.Id == contactId);
+            if(contact == null)
+            {
+                return NotFound();
+            }
+
+            var addressFromStore = contact.Addresses.FirstOrDefault(a=>a.Id == addressId);
+
+            if(addressFromStore == null)
+            {
+                return NotFound();
+            }
+
+            contact.Addresses.Remove(addressFromStore);
             return NoContent();
         }
     }
