@@ -25,13 +25,13 @@ namespace ContactManager.API
                         new AddressDto()
                         {
                             Id = 1,
-                            Type = Entities.Types.AddressType.Home,
+                            Type = Entities.Types.AddressType.Home.ToString(),
                             AddressDetails = "This is my address"
                         },
                         new AddressDto()
                         {
                             Id = 2,
-                            Type = Entities.Types.AddressType.Work,
+                            Type = Entities.Types.AddressType.Work.ToString(),
                             AddressDetails = "This is Fullscale Address"
                         }
                     },
@@ -40,13 +40,13 @@ namespace ContactManager.API
                         new NumberDto()
                         {
                             Id = 1,
-                            Type = Entities.Types.NumberType.Work,
+                            Type = Entities.Types.NumberType.Work.ToString(),
                             ContactNumber = "099292929"
                         },
                         new NumberDto()
                         {
                             Id = 2,
-                            Type = Entities.Types.NumberType.Home,
+                            Type = Entities.Types.NumberType.Home.ToString(),
                             ContactNumber = "24129429"
                         }
                         
@@ -56,14 +56,14 @@ namespace ContactManager.API
                         new EmailDto()
                         {
                             Id = 1,
-                            Type = Entities.Types.EmailType.Home,
+                            Type = Entities.Types.EmailType.Home.ToString(),
                             EmailAddress = "jeremyGwapo@gmail.com"
                         }
                     }
                 },
                 new ContactDto()
                 {
-                    Id = 1,
+                    Id = 2,
                     FirstName = "Charis",
                     LastName = "Baclayon",
                     Favorite = false,
@@ -73,14 +73,14 @@ namespace ContactManager.API
                     {
                         new AddressDto()
                         {
-                            Id = 1,
-                            Type = Entities.Types.AddressType.Home,
+                            Id = 3,
+                            Type = Entities.Types.AddressType.Home.ToString(),
                             AddressDetails = "This is my address"
                         },
                         new AddressDto()
                         {
-                            Id = 2,
-                            Type = Entities.Types.AddressType.Work,
+                            Id = 4,
+                            Type = Entities.Types.AddressType.Work.ToString(),
                             AddressDetails = "This is Fullscale Address"
                         }
                     },
@@ -88,14 +88,14 @@ namespace ContactManager.API
                     {
                         new NumberDto()
                         {
-                            Id = 1,
-                            Type = Entities.Types.NumberType.Work,
+                            Id = 3,
+                            Type = Entities.Types.NumberType.Work.ToString(),
                             ContactNumber = "0994423"
                         },
                         new NumberDto()
                         {
-                            Id = 2,
-                            Type = Entities.Types.NumberType.Home,
+                            Id = 4,
+                            Type = Entities.Types.NumberType.Home.ToString(),
                             ContactNumber = "4325634"
                         }
 

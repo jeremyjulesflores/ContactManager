@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace ContactManager.API.Controllers
 {
     [ApiController]
-    [Route("api/contacts")]
+    [Route("api/[controller]")]
     public class ContactsController : ControllerBase
     {
         [HttpGet]
