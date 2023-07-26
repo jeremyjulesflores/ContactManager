@@ -23,7 +23,6 @@ namespace ContactManager.API.Controllers
         {
             try
             {
-                throw new Exception("Exception Sample");
                 var contact = ContactsDataStore.Current.Contacts.FirstOrDefault(c => c.Id == contactId);
 
                 if (contact == null)

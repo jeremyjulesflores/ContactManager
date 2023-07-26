@@ -20,12 +20,16 @@ namespace ContactManager.API.Entities
         public string? Note { get; set; }
 
         // Addresses for the contact
-        public List<Address>? Addresses { get; set; }
+        public ICollection<Address>? Addresses { get; set; }
+            = new List<Address>();
+            
 
         //Numbers for the contact
-        public List<Number>? Numbers { get; set; }
+        public ICollection<Number>? Numbers { get; set; }
+            = new List<Number>();
 
         //Emails for the contact
-        public List<Email>? Emails { get; set; }
+        public ICollection<Email>? Emails { get; set; }
+            = new List<Email>();
     }
 }

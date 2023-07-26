@@ -11,11 +11,12 @@ namespace ContactManager.API.Entities
         public int Id { get; set; }
 
         [ForeignKey("ContactId")]
-        public Contact Contact { get; set; }
+        public Contact? Contact { get; set; }
         public int ContactId { get; set; }
 
         [Required]
-        public EmailType Type { get; set; }
+        [MaxLength(30)]
+        public string? Type { get; set; }
 
         [Required]
         [StringLength(100)]
