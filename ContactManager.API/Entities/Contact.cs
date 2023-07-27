@@ -14,8 +14,8 @@ namespace ContactManager.API.Entities
         [Required]
         [MaxLength(50)]
         public string LastName { get; set; }
-        public bool Favorite { get; set; }
-        public bool Emergency { get; set; }
+        public bool Favorite { get; set; } = false;
+        public bool Emergency { get; set; } = false;
         [MaxLength(200)]
         public string? Note { get; set; }
 
@@ -31,5 +31,12 @@ namespace ContactManager.API.Entities
         //Emails for the contact
         public ICollection<Email>? Emails { get; set; }
             = new List<Email>();
+
+        public Contact(string firstName, string lastName)
+        {
+            FirstName = firstName;
+            LastName = lastName;
+        }
+
     }
 }

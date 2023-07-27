@@ -18,8 +18,9 @@ namespace ContactManager.API.Entities
         [MaxLength(30)]
         public string? Type { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Email Address is required")]
         [StringLength(100)]
+        [EmailAddress(ErrorMessage = "Invalid Email Address")]
         public string EmailAddress { get; set; }
 
     }

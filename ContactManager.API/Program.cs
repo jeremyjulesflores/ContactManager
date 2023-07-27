@@ -28,7 +28,9 @@ builder.Services.AddControllers(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<ContactInfoContext>(dbContextOptions => dbContextOptions.UseSqlite("Data Source = ContactInfo.db"));
+builder.Services.AddDbContext<ContactInfoContext>(dbContextOptions => dbContextOptions.UseSqlite(
+    builder.Configuration["ConnectionStrings:ContactInfoDBConnectionString"]));
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
