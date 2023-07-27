@@ -64,7 +64,7 @@ namespace ContactManager.API.Controllers
                 return NotFound();
             }
 
-            var address = await _repository.GetAddress(addressId);
+            var address = await _repository.GetAddress(addressId, contactId);
 
             if(address == null)
             {
@@ -83,68 +83,68 @@ namespace ContactManager.API.Controllers
                 return NotFound();
             }
 
-            var finalAddress = _mapper.Map<Address>(address);
+            var addressToCreate = _mapper.Map<Address>(address);
 
+            await _repository.CreateAddress(contactId, addressToCreate);
 
+            await _sharedRepository.SaveChangesAsync();
 
-            
+            var createdAddressToReturn = _mapper.Map<AddressDto>(addressToCreate);
 
             return CreatedAtRoute("GetAddress",
                 new
                 {
                     contactId,
-                    addressId = finalAddress.Id 
+                    addressId = createdAddressToReturn.Id 
                 },
-                finalAddress);
+                createdAddressToReturn);
         }
 
         [HttpPut("{addressId}")]
-        public ActionResult UpdateAddress(int contactId,
+        public async Task<ActionResult> UpdateAddressAsync(int contactId,
                                           int addressId,
                                           AddressUpdateDto address)
         {
-            var contact = ContactsDataStore.Current.Contacts.FirstOrDefault(c=> c.Id ==contactId);
-            if(contact == null)
+            if (!await _sharedRepository.ContactExists(contactId))
             {
                 return NotFound();
             }
 
-            var addressFromStore = contact.Addresses.FirstOrDefault(c => c.Id == addressId);
-            if(addressFromStore == null)
+            var addressEntity = await _repository.GetAddress(addressId, contactId);
+
+            if(addressEntity == null)
             {
                 return NotFound();
             }
 
-            addressFromStore.Type = address.Type;
-            addressFromStore.AddressDetails = address.AddressDetails;
+            //automapper will override addresEntity with the addresss
+            _mapper.Map(address, addressEntity);
+
+            await _sharedRepository.SaveChangesAsync();
 
             return NoContent();
         }
 
         [HttpPatch("{addressId}")]
-        public ActionResult PartiallyUpdateAddress(int contactId,
+        public async Task<ActionResult> PartiallyUpdateAddress(int contactId,
                                                    int addressId,
                                                    JsonPatchDocument<AddressUpdateDto> patchDocument)
         {
-            var contact = ContactsDataStore.Current.Contacts.FirstOrDefault(c => c.Id == contactId);
-            if (contact == null)
+              
+
+            if(!await _sharedRepository.ContactExists(contactId))
             {
                 return NotFound();
             }
 
-            var addressFromStore = contact.Addresses.FirstOrDefault(c => c.Id == addressId);
-            if (addressFromStore == null)
+            var addressEntity = await _repository.GetAddress(addressId, contactId);
+            if(addressEntity == null)
             {
                 return NotFound();
             }
 
-            //Can use mapper here
-            var addressToPatch =
-                new AddressUpdateDto()
-                {
-                    Type = addressFromStore.Type,
-                    AddressDetails = addressFromStore.AddressDetails
-                };
+            var addressToPatch = _mapper.Map<AddressUpdateDto>(addressEntity);
+
 
             patchDocument.ApplyTo(addressToPatch, ModelState);
 
@@ -159,31 +159,33 @@ namespace ContactManager.API.Controllers
                 return BadRequest(ModelState);
             }
 
-            addressFromStore.Type = addressToPatch.Type;
-            addressFromStore.AddressDetails = addressToPatch.AddressDetails;
+            _mapper.Map(addressToPatch, addressEntity);
+            await _sharedRepository.SaveChangesAsync();
 
             return NoContent();
         }
 
         [HttpDelete("{addressId}")]
         //[ValidateAntiForgeryToken] //Idk autocompleted
-        public ActionResult DeleteAddress(int contactId,
+        public async Task<ActionResult> DeleteAddress(int contactId,
                                           int addressId)
         {
-            var contact = ContactsDataStore.Current.Contacts.FirstOrDefault(c => c.Id == contactId);
-            if(contact == null)
+            if(!await _sharedRepository.ContactExists(contactId))
             {
                 return NotFound();
             }
 
-            var addressFromStore = contact.Addresses.FirstOrDefault(a=>a.Id == addressId);
-
-            if(addressFromStore == null)
+            var addressEntity = await _repository.GetAddress(addressId, contactId);
+            if (addressEntity == null)
             {
                 return NotFound();
             }
 
-            contact.Addresses.Remove(addressFromStore);
+            _repository.DeleteAddress(addressEntity);
+
+            await _sharedRepository.SaveChangesAsync();
+
+            
             return NoContent();
         }
     }

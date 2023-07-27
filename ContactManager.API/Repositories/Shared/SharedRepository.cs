@@ -16,9 +16,9 @@ namespace ContactManager.API.Repositories.Shared
             return await _context.Contacts.AnyAsync(c => c.Id == contactId);
         }
 
-        public Task<bool> SaveChangesAsync()
+        public async Task<bool> SaveChangesAsync()
         {
-            throw new NotImplementedException();
+            return (await _context.SaveChangesAsync() >= 0);
         }
     }
 }

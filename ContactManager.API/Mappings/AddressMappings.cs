@@ -2,6 +2,7 @@
 using ContactManager.API.Entities;
 using ContactManager.API.Models;
 using ContactManager.API.Models.CreationDtos;
+using ContactManager.API.Models.UpdateDtos;
 
 namespace ContactManager.API.Mappings
 {
@@ -11,6 +12,8 @@ namespace ContactManager.API.Mappings
         {
             CreateMap<Address, AddressDto>();
             CreateMap<AddressCreationDto, Address>();
+            CreateMap<AddressUpdateDto, Address>();
+            CreateMap<Address, AddressUpdateDto>();
         }
     }
 }
