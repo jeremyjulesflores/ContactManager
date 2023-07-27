@@ -1,6 +1,10 @@
-﻿using ContactManager.API.Models;
+﻿using AutoMapper;
+using ContactManager.API.Entities;
+using ContactManager.API.Models;
 using ContactManager.API.Models.CreationDtos;
 using ContactManager.API.Models.UpdateDtos;
+using ContactManager.API.Repositories;
+using ContactManager.API.Repositories.Shared;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -12,25 +16,35 @@ namespace ContactManager.API.Controllers
     public class AddressesController : ControllerBase
     {
         private readonly ILogger<AddressesController> _logger;
+        private readonly IAddressRepository _repository;
+        private readonly IMapper _mapper;
+        private readonly ISharedRepository _sharedRepository;
 
-        public AddressesController(ILogger<AddressesController> logger)
+        public AddressesController(ILogger<AddressesController> logger,
+                                   IAddressRepository repository,
+                                   IMapper mapper,
+                                   ISharedRepository sharedRepository)
         {
             this._logger = logger ?? throw new ArgumentException(nameof(logger));
+            this._repository = repository;
+            this._mapper = mapper;
+            this._sharedRepository = sharedRepository;
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<AddressDto>> GetAddresses(int contactId)
+        public async Task<ActionResult<IEnumerable<AddressDto>>> GetAddressesAsync(int contactId)
         {
             try
             {
-                var contact = ContactsDataStore.Current.Contacts.FirstOrDefault(c => c.Id == contactId);
-
-                if (contact == null)
+                if (!await _sharedRepository.ContactExists(contactId))
                 {
-                    _logger.LogInformation($"Contact with id {contactId} wasn't found.");
+                    _logger.LogInformation(
+                        $"Contact with Id {contactId} was not found when accessing GetAddresses.");
                     return NotFound();
                 }
-                return Ok(contact.Addresses);
+                
+                var addresses = await _repository.GetAddresses(contactId);
+                return Ok(_mapper.Map<IEnumerable<AddressDto>>(addresses));
             }
             catch(Exception ex)
             {
@@ -42,48 +56,38 @@ namespace ContactManager.API.Controllers
         }
 
         [HttpGet("{addressId}", Name = "GetAddress")]
-        public ActionResult<AddressDto> GetAddress(int contactId,
+        public async Task<ActionResult<AddressDto>> GetAddressAsync(int contactId,
                                                    int addressId)
         {
-            var contact = ContactsDataStore.Current.Contacts.FirstOrDefault(c => c.Id == contactId);
-
-            if(contact == null)
+            if(!await _sharedRepository.ContactExists(contactId))
             {
                 return NotFound();
             }
 
-            var address = contact.Addresses.FirstOrDefault(c => c.Id == addressId);
+            var address = await _repository.GetAddress(addressId);
 
             if(address == null)
             {
                 return NotFound();
             }
 
-            return Ok(address);
+            return Ok(_mapper.Map<AddressDto>(address));
         }
 
         [HttpPost]
-        public ActionResult<AddressDto> CreateAddress(int contactId,
+        public async Task<ActionResult<AddressDto>> CreateAddressAsync(int contactId,
                                                       AddressCreationDto address)
         {
-            var contact = ContactsDataStore.Current.Contacts.FirstOrDefault(c => c.Id == contactId);
-            if(contact == null)
+            if (!await _sharedRepository.ContactExists(contactId))
             {
                 return NotFound();
             }
 
-            //to be improved
-            var maxAddressId = ContactsDataStore.Current.Contacts.SelectMany( c=> c.Addresses)
-                                                                            .Max(a=>a.Id);
+            var finalAddress = _mapper.Map<Address>(address);
 
-            var finalAddress = new AddressDto()
-            {
-                Id = ++maxAddressId,
-                Type = address.Type,
-                AddressDetails = address.AddressDetails
-            };
 
-            contact.Addresses.Add(finalAddress);
+
+            
 
             return CreatedAtRoute("GetAddress",
                 new
