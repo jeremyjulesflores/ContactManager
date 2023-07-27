@@ -1,7 +1,6 @@
 using ContactManager.API.DbContexts;
 using ContactManager.API.Repositories;
 using ContactManager.API.Repositories.Shared;
-using ContactManager.API.Services;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -38,7 +37,7 @@ builder.Services.AddDbContext<ContactInfoContext>(dbContextOptions => dbContextO
 builder.Services.AddScoped<IContactRepository, ContactRepository>();
 builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 builder.Services.AddScoped<ISharedRepository, SharedRepository>();
-
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 var app = builder.Build();
 

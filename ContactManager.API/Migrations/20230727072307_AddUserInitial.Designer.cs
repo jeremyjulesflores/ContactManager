@@ -3,6 +3,7 @@ using System;
 using ContactManager.API.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ContactManager.API.Migrations
 {
     [DbContext(typeof(ContactInfoContext))]
-    partial class ContactInfoContextModelSnapshot : ModelSnapshot
+    [Migration("20230727072307_AddUserInitial")]
+    partial class AddUserInitial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.20");

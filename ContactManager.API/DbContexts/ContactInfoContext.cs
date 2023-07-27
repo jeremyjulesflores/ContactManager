@@ -6,6 +6,7 @@ namespace ContactManager.API.DbContexts
 {
     public class ContactInfoContext : DbContext
     {
+        public DbSet<User> User { get; set; } = null;
         public DbSet<Contact> Contacts { get; set; } = null!;
         public DbSet<Address> Address { get; set; } = null!;
         public DbSet<Number> Number { get; set; } = null!;
