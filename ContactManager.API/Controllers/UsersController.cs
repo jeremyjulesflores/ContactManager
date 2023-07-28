@@ -62,7 +62,7 @@ namespace ContactManager.API.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login(UserDto request)
+        public async Task<IActionResult> Login(UserLoginDto request)
         {
             var user = await _repository.GetUserByUsername(request.UserName);
             if (user == null)

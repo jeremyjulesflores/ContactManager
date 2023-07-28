@@ -33,7 +33,6 @@ namespace ContactManager.API.Repositories
             {
                 contact.Addresses.Add(address);
             }
-
         }
 
         void IAddressRepository.DeleteAddress(Address address)
