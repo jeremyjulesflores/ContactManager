@@ -1,6 +1,7 @@
 using ContactManager.API.DbContexts;
 using ContactManager.API.Repositories;
 using ContactManager.API.Repositories.Shared;
+using ContactManager.API.Services;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -16,7 +17,7 @@ var builder = WebApplication.CreateBuilder(args);
 //builder.Logging.ClearProviders();
 //builder.Logging.AddConole();
 
-builder.Host.UseSerilog();
+//builder.Host.UseSerilog();
 // Add services to the container.
 
 
@@ -38,6 +39,8 @@ builder.Services.AddScoped<IContactRepository, ContactRepository>();
 builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 builder.Services.AddScoped<ISharedRepository, SharedRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+builder.Services.AddScoped<IAddressService, AddressService>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 var app = builder.Build();
 

@@ -5,6 +5,7 @@ using ContactManager.API.Models.CreationDtos;
 using ContactManager.API.Models.UpdateDtos;
 using ContactManager.API.Repositories;
 using ContactManager.API.Repositories.Shared;
+using ContactManager.API.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -16,19 +17,19 @@ namespace ContactManager.API.Controllers
     public class AddressesController : ControllerBase
     {
         private readonly ILogger<AddressesController> _logger;
-        private readonly IAddressRepository _repository;
         private readonly IMapper _mapper;
         private readonly ISharedRepository _sharedRepository;
+        private readonly IAddressService _addressService;
 
         public AddressesController(ILogger<AddressesController> logger,
-                                   IAddressRepository repository,
                                    IMapper mapper,
-                                   ISharedRepository sharedRepository)
+                                   ISharedRepository sharedRepository,
+                                   IAddressService addressService)
         {
             this._logger = logger ?? throw new ArgumentException(nameof(logger));
-            this._repository = repository;
             this._mapper = mapper;
             this._sharedRepository = sharedRepository;
+            this._addressService = addressService;
         }
 
         [HttpGet]
@@ -36,15 +37,14 @@ namespace ContactManager.API.Controllers
         {
             try
             {
-                if (!await _sharedRepository.ContactExists(contactId))
+                var addresses = await _addressService.GetAddresses(contactId);
+                
+                if(addresses == null)
                 {
-                    _logger.LogInformation(
-                        $"Contact with Id {contactId} was not found when accessing GetAddresses.");
                     return NotFound();
                 }
-                
-                var addresses = await _repository.GetAddresses(contactId);
-                return Ok(_mapper.Map<IEnumerable<AddressDto>>(addresses));
+
+                return Ok(addresses);
             }
             catch(Exception ex)
             {
@@ -59,12 +59,7 @@ namespace ContactManager.API.Controllers
         public async Task<ActionResult<AddressDto>> GetAddressAsync(int contactId,
                                                    int addressId)
         {
-            if(!await _sharedRepository.ContactExists(contactId))
-            {
-                return NotFound();
-            }
-
-            var address = await _repository.GetAddress(addressId, contactId);
+            var address = await _addressService.GetAddress(addressId: addressId, contactId: contactId);
 
             if(address == null)
             {
@@ -78,26 +73,14 @@ namespace ContactManager.API.Controllers
         public async Task<ActionResult<AddressDto>> CreateAddressAsync(int contactId,
                                                       AddressCreationDto address)
         {
-            if (!await _sharedRepository.ContactExists(contactId))
+            var created = await _addressService.CreateAddress(contactId, address);
+
+            if (!created)
             {
-                return NotFound();
+                return BadRequest();
             }
 
-            var addressToCreate = _mapper.Map<Address>(address);
-
-            await _repository.CreateAddress(contactId, addressToCreate);
-
-            await _sharedRepository.SaveChangesAsync();
-
-            var createdAddressToReturn = _mapper.Map<AddressDto>(addressToCreate);
-
-            return CreatedAtRoute("GetAddress",
-                new
-                {
-                    contactId,
-                    addressId = createdAddressToReturn.Id 
-                },
-                createdAddressToReturn);
+            return Ok("Address Succefully Created");
         }
 
         [HttpPut("{addressId}")]
@@ -105,24 +88,13 @@ namespace ContactManager.API.Controllers
                                           int addressId,
                                           AddressUpdateDto address)
         {
-            if (!await _sharedRepository.ContactExists(contactId))
+            var updated = await _addressService.UpdateAddress(contactId, addressId, address);
+            if (!updated)
             {
                 return NotFound();
             }
 
-            var addressEntity = await _repository.GetAddress(addressId, contactId);
-
-            if(addressEntity == null)
-            {
-                return NotFound();
-            }
-
-            //automapper will override addresEntity with the addresss
-            _mapper.Map(address, addressEntity);
-
-            await _sharedRepository.SaveChangesAsync();
-
-            return NoContent();
+            return Ok("Address Updated");
         }
 
         [HttpPatch("{addressId}")]
@@ -130,19 +102,11 @@ namespace ContactManager.API.Controllers
                                                    int addressId,
                                                    JsonPatchDocument<AddressUpdateDto> patchDocument)
         {
-              
-
-            if(!await _sharedRepository.ContactExists(contactId))
-            {
-                return NotFound();
-            }
-
-            var addressEntity = await _repository.GetAddress(addressId, contactId);
+            var addressEntity = await _addressService.GetAddress(addressId, contactId);
             if(addressEntity == null)
             {
                 return NotFound();
             }
-
             var addressToPatch = _mapper.Map<AddressUpdateDto>(addressEntity);
 
 
@@ -170,23 +134,13 @@ namespace ContactManager.API.Controllers
         public async Task<ActionResult> DeleteAddress(int contactId,
                                           int addressId)
         {
-            if(!await _sharedRepository.ContactExists(contactId))
+            var deleted = await _addressService.DeleteAddress(contactId, addressId);
+
+            if (!deleted)
             {
                 return NotFound();
             }
-
-            var addressEntity = await _repository.GetAddress(addressId, contactId);
-            if (addressEntity == null)
-            {
-                return NotFound();
-            }
-
-            _repository.DeleteAddress(addressEntity);
-
-            await _sharedRepository.SaveChangesAsync();
-
-            
-            return NoContent();
+            return Ok("Delete Successful");
         }
     }
 }
