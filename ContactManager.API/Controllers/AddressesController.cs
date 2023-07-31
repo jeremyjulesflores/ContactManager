@@ -50,7 +50,7 @@ namespace ContactManager.API.Controllers
             {
                 _logger.LogCritical(
                     $"Exception while getting Addresses for contact with id {contactId}.", ex);
-                return StatusCode(500, "A problem happened while handling your request.");
+                return StatusCode(500, "Something went wrong");
             }
             
         }
