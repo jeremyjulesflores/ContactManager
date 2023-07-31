@@ -9,7 +9,9 @@ namespace ContactManager.API.Services
         Task<IEnumerable<NumberDto>> GetNumbers(int contactId);
         Task<NumberDto> GetNumber(int contactId, int numberId);
         Task<bool> CreateNumber (int contactId, NumberCreationDto number);
-        Task<bool> DeleteAddress(int contactId, int numberId);
-        Task<bool> UpdateAddress(int contactId, int numberId, NumberUpdateDto address);
+        Task<bool> DeleteNumber(int contactId, int numberId);
+        Task<bool> UpdateNumber(int contactId, int numberId, NumberUpdateDto number);
+        Task<NumberUpdateDto> GetNumberToPatch(int contactId, int numberId);
+        Task<bool> PatchNumber(int contactId, int numberId, NumberUpdateDto number);
     }
 }
