@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ContactManager.API.Migrations
 {
     [DbContext(typeof(ContactInfoContext))]
-    [Migration("20230727072307_AddUserInitial")]
-    partial class AddUserInitial
+    [Migration("20230728064000_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -43,36 +43,6 @@ namespace ContactManager.API.Migrations
                     b.HasIndex("ContactId");
 
                     b.ToTable("Address");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            AddressDetails = "This is my address 1",
-                            ContactId = 1,
-                            Type = "Home"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            AddressDetails = "This is Fullscale Address",
-                            ContactId = 1,
-                            Type = "Work"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            AddressDetails = "This is my address",
-                            ContactId = 2,
-                            Type = "Home"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            AddressDetails = "This is Fullscale Address",
-                            ContactId = 3,
-                            Type = "Work"
-                        });
                 });
 
             modelBuilder.Entity("ContactManager.API.Entities.Contact", b =>
@@ -101,37 +71,14 @@ namespace ContactManager.API.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
 
-                    b.ToTable("Contacts");
+                    b.HasIndex("UserId");
 
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Emergency = false,
-                            Favorite = false,
-                            FirstName = "Jeremy",
-                            LastName = "Flores",
-                            Note = "This is a Note"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Emergency = false,
-                            Favorite = false,
-                            FirstName = "Lirae",
-                            LastName = "Data",
-                            Note = "This is a Note 2"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Emergency = false,
-                            Favorite = false,
-                            FirstName = "Charis Arlie",
-                            LastName = "Baclayon"
-                        });
+                    b.ToTable("Contacts");
                 });
 
             modelBuilder.Entity("ContactManager.API.Entities.Email", b =>
@@ -158,15 +105,6 @@ namespace ContactManager.API.Migrations
                     b.HasIndex("ContactId");
 
                     b.ToTable("Email");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            ContactId = 3,
-                            EmailAddress = "jeremygwapo@gmail.com",
-                            Type = "Home"
-                        });
                 });
 
             modelBuilder.Entity("ContactManager.API.Entities.Number", b =>
@@ -193,15 +131,6 @@ namespace ContactManager.API.Migrations
                     b.HasIndex("ContactId");
 
                     b.ToTable("Number");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            ContactId = 1,
-                            ContactNumber = "099292929",
-                            Type = "Work"
-                        });
                 });
 
             modelBuilder.Entity("ContactManager.API.Entities.User", b =>
@@ -264,6 +193,17 @@ namespace ContactManager.API.Migrations
                     b.Navigation("Contact");
                 });
 
+            modelBuilder.Entity("ContactManager.API.Entities.Contact", b =>
+                {
+                    b.HasOne("ContactManager.API.Entities.User", "User")
+                        .WithMany("Contacts")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("ContactManager.API.Entities.Email", b =>
                 {
                     b.HasOne("ContactManager.API.Entities.Contact", "Contact")
@@ -293,6 +233,11 @@ namespace ContactManager.API.Migrations
                     b.Navigation("Emails");
 
                     b.Navigation("Numbers");
+                });
+
+            modelBuilder.Entity("ContactManager.API.Entities.User", b =>
+                {
+                    b.Navigation("Contacts");
                 });
 #pragma warning restore 612, 618
         }

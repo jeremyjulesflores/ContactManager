@@ -5,8 +5,8 @@ namespace ContactManager.API.Repositories
     public interface IAddressRepository
     {
         Task<IEnumerable<Address>> GetAddresses(int contactId);
-        Task<Address?> GetAddress(int addressId, int contactId);
-        Task CreateAddress(int contactId, Address address);
+        Task<Address?> GetAddress(int contactId, int addressId);
+        void CreateAddress(Contact contact, Address address);
         void DeleteAddress(Address address);
     }
 }

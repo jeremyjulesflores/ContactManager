@@ -16,6 +16,7 @@ namespace ContactManager.API.Entities
         [MaxLength(50)]
         public string LastName { get; set; }
         [Required]
+        [EmailAddress]
         public string Email { get; set; } 
         [Required]
         public string Username { get; set; } 
@@ -27,5 +28,9 @@ namespace ContactManager.API.Entities
         public DateTime? VerifiedAt { get; set; }
         public string? PasswordResetToken { get; set; }
         public DateTime? ResetTokenExpires { get; set; }
+
+        //Contacts of User
+        public ICollection<Contact> Contacts { get; set; }
+            = new List<Contact>();
     }
 }

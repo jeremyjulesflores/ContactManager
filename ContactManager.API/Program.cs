@@ -41,6 +41,7 @@ builder.Services.AddScoped<ISharedRepository, SharedRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 builder.Services.AddScoped<IAddressService, AddressService>();
+builder.Services.AddScoped<IContactService, ContactService>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 var app = builder.Build();
 

@@ -20,5 +20,10 @@ namespace ContactManager.API.Repositories.Shared
         {
             return (await _context.SaveChangesAsync() >= 0);
         }
+
+        async Task<bool> ISharedRepository.UserExists(int userId)
+        {
+             return await _context.User.AnyAsync(c => c.Id == userId);
+        }
     }
 }

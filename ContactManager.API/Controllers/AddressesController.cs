@@ -55,7 +55,7 @@ namespace ContactManager.API.Controllers
             
         }
 
-        [HttpGet("{addressId}", Name = "GetAddress")]
+        [HttpGet("{addressId}")]
         public async Task<ActionResult<AddressDto>> GetAddressAsync(int contactId,
                                                    int addressId)
         {
@@ -66,21 +66,21 @@ namespace ContactManager.API.Controllers
                 return NotFound();
             }
 
-            return Ok(_mapper.Map<AddressDto>(address));
+            return Ok(address);
         }
 
         [HttpPost]
         public async Task<ActionResult<AddressDto>> CreateAddressAsync(int contactId,
                                                       AddressCreationDto address)
         {
-            var created = await _addressService.CreateAddress(contactId, address);
+            var created = await this._addressService.CreateAddress(contactId, address);
 
             if (!created)
             {
                 return BadRequest();
             }
 
-            return Ok("Address Succefully Created");
+            return Ok("Address Successfully Created");
         }
 
         [HttpPut("{addressId}")]

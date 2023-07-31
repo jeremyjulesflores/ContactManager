@@ -4,5 +4,6 @@
     {
         Task<bool> SaveChangesAsync();
         Task<bool> ContactExists(int contactId);
+        Task<bool> UserExists(int userId);
     }
 }

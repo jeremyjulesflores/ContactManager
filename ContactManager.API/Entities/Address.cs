@@ -20,7 +20,7 @@ namespace ContactManager.API.Entities
 
         [Required]
         [StringLength(100)]
-        public string AddressDetails { get; set; }
+        public string? AddressDetails { get; set; }
 
     }
 }

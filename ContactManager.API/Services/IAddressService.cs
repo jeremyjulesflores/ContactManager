@@ -20,7 +20,7 @@ namespace ContactManager.API.Services
         /// <param name="addressId"></param>
         /// <param name="contactId"></param>
         /// <returns>An AdressDto Object</returns>
-        Task<AddressDto?> GetAddress(int addressId, int contactId);
+        Task<AddressDto?> GetAddress(int contactId, int addressId);
         /// <summary>
         /// Creates Address
         /// </summary>

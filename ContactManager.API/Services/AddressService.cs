@@ -12,46 +12,50 @@ namespace ContactManager.API.Services
     {
         private readonly IAddressRepository _repository;
         private readonly ISharedRepository _sharedRepository;
+        private readonly IContactRepository _contactRepository;
         private readonly IMapper _mapper;
 
         public AddressService(IAddressRepository repository,
                               ISharedRepository sharedRepository,
+                              IContactRepository contactRepository,
                               IMapper mapper)
         {
             this._repository = repository;
             this._sharedRepository = sharedRepository;
             this._mapper = mapper;
+            this._contactRepository = contactRepository;
         }
         public async Task<bool> CreateAddress(int contactId, AddressCreationDto address)
         {
-            if (!await _sharedRepository.ContactExists(contactId))
+            
+            var contact = await _contactRepository.GetContact(contactId);
+            if(contact == null)
             {
                 return false;
             }
-
             var addressToCreate = _mapper.Map<Address>(address);
 
-            await _repository.CreateAddress(contactId, addressToCreate);
+            this._repository.CreateAddress(contact, addressToCreate);
 
-            return await _sharedRepository.SaveChangesAsync();
+            return await this._sharedRepository.SaveChangesAsync();
         }
 
         public async Task<bool> DeleteAddress(int contactId, int addressId)
         {
-            if (!await _sharedRepository.ContactExists(contactId))
+            if (!await this._sharedRepository.ContactExists(contactId))
             {
                 return false;
             }
-            var addressEntity = await _repository.GetAddress(addressId, contactId);
+            var addressEntity = await this._repository.GetAddress(contactId, addressId);
             if (addressEntity == null) { return false; }
-            _repository.DeleteAddress(addressEntity);
+            this._repository.DeleteAddress(addressEntity);
 
-            return await _sharedRepository.SaveChangesAsync();
+            return await this._sharedRepository.SaveChangesAsync();
         }
 
         public async Task<AddressDto?> GetAddress(int addressId, int contactId)
         {
-            if (!await _sharedRepository.ContactExists(contactId))
+            if (!await this._sharedRepository.ContactExists(contactId))
             {
                 return null;
             }
@@ -71,7 +75,7 @@ namespace ContactManager.API.Services
 
             var addresses = await _repository.GetAddresses(contactId);
 
-            return _mapper.Map<IEnumerable<AddressDto>>(addresses);
+            return this._mapper.Map<IEnumerable<AddressDto>>(addresses);
         }
         async Task<bool> IAddressService.UpdateAddress(int contactId, int addressId, AddressUpdateDto address)
         {

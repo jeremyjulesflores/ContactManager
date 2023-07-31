@@ -7,15 +7,12 @@ namespace ContactManager.API.Repositories
     public class AddressRepository : IAddressRepository
     {
         private readonly ContactInfoContext _context;
-        private readonly IContactRepository _contactRepository;
 
-        public AddressRepository(ContactInfoContext context,
-                                 IContactRepository contactRepository)
+        public AddressRepository(ContactInfoContext context)
         {
             this._context = context ?? throw new ArgumentNullException(nameof(context));
-            this._contactRepository = contactRepository ?? throw new ArgumentNullException(nameof(contactRepository));
         }
-        public async Task<Address?> GetAddress(int addressId, int contactId)
+        public async Task<Address?> GetAddress(int contactId, int addressId)
         {
             return await _context.Address.Where(a => a.Id == addressId && a.ContactId == contactId)
                                          .FirstOrDefaultAsync();
@@ -26,13 +23,9 @@ namespace ContactManager.API.Repositories
             return await _context.Address.Where(a=>a.ContactId == contactId).ToListAsync();
         }
 
-        async Task IAddressRepository.CreateAddress(int contactId, Address address)
+        void IAddressRepository.CreateAddress(Contact contact, Address address)
         {
-            var contact = await _contactRepository.GetContact(contactId, includeContactDetails: true);
-            if(contact != null)
-            {
-                contact.Addresses.Add(address);
-            }
+            contact.Addresses.Add(address);
         }
 
         void IAddressRepository.DeleteAddress(Address address)
