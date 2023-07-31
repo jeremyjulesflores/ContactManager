@@ -42,7 +42,21 @@ namespace ContactManager.API.Services
         /// <param name="address"></param>
         /// <returns>bool if address is successful or not</returns>
         Task <bool> UpdateAddress(int contactId, int addressId, AddressUpdateDto address);
-
+        /// <summary>
+        /// Get the Address to Patch
+        /// </summary>
+        /// <param name="contactId"></param>
+        /// <param name="addressId"></param>
+        /// <returns>Address Update Dto</returns>
+        Task<AddressUpdateDto> GetAddressToPatch(int contactId, int addressId);
+        /// <summary>
+        /// Patch Address
+        /// </summary>
+        /// <param name="contactId"></param>
+        /// <param name="addressId"></param>
+        /// <param name="address"></param>
+        /// <returns>Bool if the address has been patch</returns>
+        Task<bool> PatchNumber(int contactId, int addressId, AddressUpdateDto address);
         //Try to implement
         //Task<bool> PartiallyUpdateAddress(int contactId,
         //                                  int addressId,

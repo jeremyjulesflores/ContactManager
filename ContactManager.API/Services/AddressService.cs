@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using AutoMapper.Execution;
 using ContactManager.API.Entities;
 using ContactManager.API.Models;
 using ContactManager.API.Models.CreationDtos;
@@ -77,6 +78,22 @@ namespace ContactManager.API.Services
 
             return this._mapper.Map<IEnumerable<AddressDto>>(addresses);
         }
+
+        async Task<AddressUpdateDto> IAddressService.GetAddressToPatch(int contactId, int addressId)
+        {
+            var numberEntity = await _repository.GetAddress(contactId, addressId);
+
+            return _mapper.Map<AddressUpdateDto>(numberEntity);
+        }
+
+        async Task<bool> IAddressService.PatchNumber(int contactId, int addressId, AddressUpdateDto address)
+        {
+            var addressEntity = await _repository.GetAddress(contactId, addressId);
+            _mapper.Map(address, addressEntity);
+
+            return await _sharedRepository.SaveChangesAsync();
+        }
+
         async Task<bool> IAddressService.UpdateAddress(int contactId, int addressId, AddressUpdateDto address)
         {
             if (!await _sharedRepository.ContactExists(contactId))

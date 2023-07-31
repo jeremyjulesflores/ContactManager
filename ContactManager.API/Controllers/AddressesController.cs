@@ -102,12 +102,11 @@ namespace ContactManager.API.Controllers
                                                    int addressId,
                                                    JsonPatchDocument<AddressUpdateDto> patchDocument)
         {
-            var addressEntity = await _addressService.GetAddress(addressId, contactId);
-            if(addressEntity == null)
+            var addressToPatch = await _addressService.GetAddressToPatch(contactId, addressId);   
+            if (addressToPatch == null)
             {
                 return NotFound();
             }
-            var addressToPatch = _mapper.Map<AddressUpdateDto>(addressEntity);
 
 
             patchDocument.ApplyTo(addressToPatch, ModelState);
@@ -123,10 +122,12 @@ namespace ContactManager.API.Controllers
                 return BadRequest(ModelState);
             }
 
-            _mapper.Map(addressToPatch, addressEntity);
-            await _sharedRepository.SaveChangesAsync();
+            if(!await _addressService.PatchNumber(contactId, addressId, addressToPatch))
+            {
+                return BadRequest(ModelState);
+            }
 
-            return NoContent();
+            return Ok("Address Successfully Updated");
         }
 
         [HttpDelete("{addressId}")]
