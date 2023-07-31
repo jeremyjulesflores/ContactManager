@@ -39,9 +39,12 @@ builder.Services.AddScoped<IContactRepository, ContactRepository>();
 builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 builder.Services.AddScoped<ISharedRepository, SharedRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<INumberRepository, NumberRepository>();
+
 
 builder.Services.AddScoped<IAddressService, AddressService>();
 builder.Services.AddScoped<IContactService, ContactService>();
+builder.Services.AddScoped<INumberService, NumberService>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 var app = builder.Build();
 
