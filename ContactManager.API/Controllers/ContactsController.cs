@@ -1,50 +1,60 @@
 ﻿using AutoMapper;
 using ContactManager.API.Models;
+using ContactManager.API.Models.CreationDtos;
 using ContactManager.API.Repositories;
+using ContactManager.API.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ContactManager.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/user/{userId}/[controller]")]
     public class ContactsController : ControllerBase
     {
-        private readonly IContactRepository _repository;
-        private readonly IMapper _mapper;
+        private readonly IContactService _contactService;
 
-        public ContactsController(IContactRepository repository,
-                                  IMapper mapper)
+
+        public ContactsController(IContactService _contactService)
         {
-            this._repository = repository ?? throw new ArgumentNullException(nameof(repository));
-            this._mapper = mapper;
+            this._contactService = _contactService;
+
         }
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ContactDto>>> GetContactsAsync()
+        public async Task<ActionResult<IEnumerable<ContactWithoutDetailsDto>>> GetContactsAsync(int userId)
         {
-            var contacts = await _repository.GetContacts();
+            var contacts = await _contactService.GetContacts(userId);
             if (contacts == null)
             {
                 return NotFound();
             }
-
-            return Ok(_mapper.Map<IEnumerable<ContactWithoutDetailsDto>>(contacts));
+            
+            return Ok(contacts);
         }
 
         [HttpGet("{contactId}")]
-        public async Task<IActionResult> GetContactAsync(int contactId, 
-                                                   bool includeContactDetails = true)
+        public async Task<IActionResult> GetContactAsync(int contactId,
+                                                         int userId)
         {
-            var contact = await _repository.GetContact(contactId, includeContactDetails);
+            var contact = await _contactService.GetContact(contactId, userId);
             if (contact == null)
             {
                 return NotFound();
             }
 
-            if (includeContactDetails)
+            return Ok(contact);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateContact(int userId, ContactCreationDto contact)
+        {
+            var created = await _contactService.CreateContact(userId, contact);
+
+            if (!created)
             {
-                return Ok(_mapper.Map<ContactDto>(contact));
+                return BadRequest();
             }
-            return Ok(_mapper.Map<ContactWithoutDetailsDto>(contact));
+
+            return Ok("Contact Successfully Created");
         }
   
     }

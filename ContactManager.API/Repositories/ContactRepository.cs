@@ -1,5 +1,6 @@
 ﻿using ContactManager.API.DbContexts;
 using ContactManager.API.Entities;
+using ContactManager.API.Models.CreationDtos;
 using Microsoft.EntityFrameworkCore;
 
 namespace ContactManager.API.Repositories
@@ -12,28 +13,29 @@ namespace ContactManager.API.Repositories
         {
             this._context = context ?? throw new ArgumentNullException(nameof(context));
         }
-        public async Task<Contact?> GetContact(int contactId, bool includeContactDetails)
+        public async Task<Contact?> GetContact(int contactId)
         {
-            if (includeContactDetails)
-            {
-                return await _context.Contacts.Include(c => c.Addresses)
-                                              .Include(c => c.Numbers)
-                                              .Include(c => c.Emails)
-                                              .FirstOrDefaultAsync(c => c.Id == contactId);
-            }
-
-            return await _context.Contacts
-                .Where(c => c.Id == contactId).FirstOrDefaultAsync();
+          
+            
+            return await this._context.Contacts.Include(c => c.Addresses)
+                                               .Include(c => c.Numbers)
+                                               .Include(c => c.Emails)
+                                               .FirstOrDefaultAsync(c => c.Id == contactId);
         }
 
-        public async Task<IEnumerable<Contact>> GetContacts()
+        public async Task<IEnumerable<Contact>> GetContacts(int userId)
         {
-            return await _context.Contacts.ToListAsync();
+            return await _context.Contacts.Where(c=>c.UserId == userId).ToListAsync();
         }
 
-        public async Task<bool> ContactExists(int contactId)
+        void IContactRepository.CreateContact(User user, Contact contact)
         {
-            return await _context.Contacts.AnyAsync(c=> c.Id == contactId);
+            user.Contacts.Add(contact);
+        }
+
+        void IContactRepository.DeleteContact(Contact contact)
+        {
+            _context.Contacts.Remove(contact);
         }
     }
 }
