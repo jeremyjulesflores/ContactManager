@@ -116,7 +116,7 @@ namespace ContactManager.API.Controllers
                 return BadRequest(ModelState);
             }
 
-            if(!await _addressService.PatchNumber(contactId, addressId, addressToPatch))
+            if(!await _addressService.PatchAddress(contactId, addressId, addressToPatch))
             {
                 return BadRequest(ModelState);
             }

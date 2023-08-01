@@ -81,12 +81,12 @@ namespace ContactManager.API.Services
 
         async Task<AddressUpdateDto> IAddressService.GetAddressToPatch(int contactId, int addressId)
         {
-            var numberEntity = await _repository.GetAddress(contactId, addressId);
+            var addressEntity = await _repository.GetAddress(contactId, addressId);
 
-            return _mapper.Map<AddressUpdateDto>(numberEntity);
+            return _mapper.Map<AddressUpdateDto>(addressEntity);
         }
 
-        async Task<bool> IAddressService.PatchNumber(int contactId, int addressId, AddressUpdateDto address)
+        async Task<bool> IAddressService.PatchAddress(int contactId, int addressId, AddressUpdateDto address)
         {
             var addressEntity = await _repository.GetAddress(contactId, addressId);
             _mapper.Map(address, addressEntity);
