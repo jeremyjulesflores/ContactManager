@@ -1,17 +1,36 @@
-﻿using ContactManager.API.Entities;
+﻿using ContactManager.API.DbContexts;
+using ContactManager.API.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace ContactManager.API.Repositories
 {
     public class EmailRepository : IEmailRepository
     {
-        public Task<Email?> GetEmail(int emailId)
+        private readonly ContactInfoContext _context;
+        public EmailRepository(ContactInfoContext context)
         {
-            throw new NotImplementedException();
+               this._context = context?? throw new ArgumentNullException(nameof(context));
         }
 
-        public Task<IEnumerable<Email>> GetEmails()
+        public async Task<Email?> GetEmail(int contactId, int emailId)
         {
-            throw new NotImplementedException();
+            return await _context.Email.Where(a => a.Id == emailId && a.ContactId == contactId)
+                                         .FirstOrDefaultAsync();
+        }
+
+        public async Task<IEnumerable<Email>> GetEmails(int contactId)
+        {
+            return await _context.Email.Where(a => a.ContactId == contactId).ToListAsync();
+        }
+
+        void IEmailRepository.CreateEmail(Contact contact, Email Email)
+        {
+            contact.Emails.Add(Email);
+        }
+
+        void IEmailRepository.DeleteEmail(Email Email)
+        {
+            _context.Email.Remove(Email);
         }
     }
 }

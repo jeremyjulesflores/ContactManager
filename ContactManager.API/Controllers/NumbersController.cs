@@ -15,15 +15,12 @@ namespace ContactManager.API.Controllers
     {
         private readonly INumberService _numberService;
         private readonly ILogger<NumbersController> _logger;
-        private readonly IMapper _mapper;
 
         public NumbersController(INumberService numberService,
-                                 ILogger<NumbersController> logger,
-                                 IMapper mapper)
+                                 ILogger<NumbersController> logger)
         {
             this._numberService = numberService;
             this._logger = logger;
-            this._mapper = mapper;
         }
 
         [HttpGet]

@@ -1,5 +1,9 @@
 ﻿using ContactManager.API.Models;
+using ContactManager.API.Models.CreationDtos;
+using ContactManager.API.Models.UpdateDtos;
+using ContactManager.API.Services;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ContactManager.API.Controllers
@@ -8,37 +12,125 @@ namespace ContactManager.API.Controllers
     [ApiController]
     public class EmailsController : ControllerBase
     {
-        [HttpGet]
-        public ActionResult<IEnumerable<EmailDto>> GetEmails(int contactId)
-        {
-            var contact = ContactsDataStore.Current.Contacts.FirstOrDefault(c => c.Id == contactId);
+        private readonly ILogger<EmailsController> _logger;
+        private readonly IEmailService _emailService;
 
-            if(contact == null)
+        public EmailsController(ILogger<EmailsController> logger,
+                                IEmailService emailService)
+        {
+            this._logger = logger;
+            this._emailService = emailService;
+        }
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<EmailDto>>> GetEmailsAsync(int contactId)
+        {
+            try
             {
-                return NotFound();
+                var emails = await _emailService.GetEmails(contactId);
+
+                if (emails == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(emails);
             }
-            return Ok(contact.Emails);
+            catch (Exception ex)
+            {
+                _logger.LogCritical(
+                    $"Exception while getting Emails for contact with id {contactId}.", ex);
+                return StatusCode(500, "Something went wrong");
+            }
+
         }
 
         [HttpGet("{emailId}")]
-        public ActionResult<EmailDto> GetAddress(int contactId,
+        public async Task<ActionResult<EmailDto>> GetEmailAsync(int contactId,
                                                    int emailId)
         {
-            var contact = ContactsDataStore.Current.Contacts.FirstOrDefault(c => c.Id == contactId);
+            var email = await _emailService.GetEmail(emailId: emailId, contactId: contactId);
 
-            if(contact == null)
-            {
-                return NotFound();
-            }
-
-            var email = contact.Emails.FirstOrDefault(c => c.Id == emailId);
-
-            if(email == null)
+            if (email == null)
             {
                 return NotFound();
             }
 
             return Ok(email);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<EmailDto>> CreateEmailAsync(int contactId,
+                                                      EmailCreationDto email)
+        {
+            var created = await this._emailService.CreateEmail(contactId, email);
+
+            if (!created)
+            {
+                return BadRequest();
+            }
+
+            return Ok("Email Successfully Created");
+        }
+
+        [HttpPut("{emailId}")]
+        public async Task<ActionResult> UpdateEmailAsync(int contactId,
+                                          int emailId,
+                                          EmailUpdateDto email)
+        {
+            var updated = await _emailService.UpdateEmail(contactId, emailId, email);
+            if (!updated)
+            {
+                return NotFound();
+            }
+
+            return Ok("Email Updated");
+        }
+
+        [HttpPatch("{emailId}")]
+        public async Task<ActionResult> PartiallyUpdateEmail(int contactId,
+                                                   int emailId,
+                                                   JsonPatchDocument<EmailUpdateDto> patchDocument)
+        {
+            var emailToPatch = await _emailService.GetEmailToPatch(contactId, emailId);
+            if (emailToPatch == null)
+            {
+                return NotFound();
+            }
+
+
+            patchDocument.ApplyTo(emailToPatch, ModelState);
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            //Check if Model is correct
+            //If Request is invalid it will return false and return a Bad Requet
+            if (!TryValidateModel(emailToPatch))
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (!await _emailService.PatchNumber(contactId, emailId, emailToPatch))
+            {
+                return BadRequest(ModelState);
+            }
+
+            return Ok("Email Successfully Updated");
+        }
+
+        [HttpDelete("{emailId}")]
+        //[ValidateAntiForgeryToken] //Idk autocompleted
+        public async Task<ActionResult> DeleteEmail(int contactId,
+                                          int emailId)
+        {
+            var deleted = await _emailService.DeleteEmail(contactId, emailId);
+
+            if (!deleted)
+            {
+                return NotFound();
+            }
+            return Ok("Delete Successful");
         }
     }
 }

@@ -17,21 +17,15 @@ namespace ContactManager.API.Controllers
     public class AddressesController : ControllerBase
     {
         private readonly ILogger<AddressesController> _logger;
-        private readonly IMapper _mapper;
-        private readonly ISharedRepository _sharedRepository;
         private readonly IAddressService _addressService;
 
         public AddressesController(ILogger<AddressesController> logger,
-                                   IMapper mapper,
-                                   ISharedRepository sharedRepository,
                                    IAddressService addressService)
         {
             this._logger = logger ?? throw new ArgumentException(nameof(logger));
-            this._mapper = mapper;
-            this._sharedRepository = sharedRepository;
             this._addressService = addressService;
         }
-
+        
         [HttpGet]
         public async Task<ActionResult<IEnumerable<AddressDto>>> GetAddressesAsync(int contactId)
         {

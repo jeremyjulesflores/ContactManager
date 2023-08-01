@@ -40,8 +40,9 @@ builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 builder.Services.AddScoped<ISharedRepository, SharedRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<INumberRepository, NumberRepository>();
+builder.Services.AddScoped<IEmailRepository, EmailRepository>();
 
-
+builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IAddressService, AddressService>();
 builder.Services.AddScoped<IContactService, ContactService>();
 builder.Services.AddScoped<INumberService, NumberService>();
