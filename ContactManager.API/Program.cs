@@ -1,7 +1,9 @@
 using ContactManager.API.DbContexts;
 using ContactManager.API.Repositories;
+using ContactManager.API.Repositories.AuditLogsRepository;
 using ContactManager.API.Repositories.Shared;
 using ContactManager.API.Services;
+using ContactManager.API.Services.AuditLogsServices;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -41,12 +43,16 @@ builder.Services.AddScoped<ISharedRepository, SharedRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<INumberRepository, NumberRepository>();
 builder.Services.AddScoped<IEmailRepository, EmailRepository>();
+builder.Services.AddScoped<IUserLogsRepository, UserLogsRepository>();
+builder.Services.AddScoped<IContactLogsRepository, ContactLogsRepository>();
 
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IAddressService, AddressService>();
 builder.Services.AddScoped<IContactService, ContactService>();
 builder.Services.AddScoped<INumberService, NumberService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUserLogsService, UserLogsService>();
+builder.Services.AddScoped<IContactLogsService, ContactLogsService>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 var app = builder.Build();
 

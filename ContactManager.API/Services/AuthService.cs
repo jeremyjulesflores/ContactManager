@@ -11,6 +11,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using ContactManager.API.Services.AuditLogsServices;
 
 namespace ContactManager.API.Services
 {
@@ -22,18 +23,21 @@ namespace ContactManager.API.Services
         private readonly ISharedRepository _sharedRepository;
         private readonly IContactService _contactService;
         private readonly IConfiguration _configuration;
+        private readonly IUserLogsService _userLogsService;
 
         public AuthService(IUserRepository userRepository,
                            IMapper mapper,
                            ISharedRepository sharedRepository,
                            IContactService contactService,
-                           IConfiguration configuration)
+                           IConfiguration configuration,
+                           IUserLogsService userLogsService)
         {
             this._userRepository = userRepository;
             this._mapper = mapper;
             this._sharedRepository = sharedRepository;
             this._contactService = contactService;
             this._configuration = configuration;
+            this._userLogsService = userLogsService;
         }
         public async Task<PasswordHashResult> CreatePasswordHash(string password)
         {
@@ -72,6 +76,7 @@ namespace ContactManager.API.Services
 
             if(await _sharedRepository.SaveChangesAsync())
             {
+                _userLogsService.CreateLog("Register", user.Username, "Registered");
                 await _contactService.CreateContact(user.Id, new ContactCreationDto
                 {
                     FirstName = user.FirstName,
@@ -92,10 +97,13 @@ namespace ContactManager.API.Services
                         user.PasswordHash,
                         user.PasswordSalt))
             {
+                _userLogsService.CreateLog("Login", loginRequest.UserName, "Failed to LogIn, InvalidPassword");
                 throw new InvalidPasswordException("Invalid password.");
             }
 
             string token = await CreateToken(user);
+
+            _userLogsService.CreateLog("Login", loginRequest.UserName, "Logged In");
             return token;
         }
 

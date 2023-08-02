@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace ContactManager.API.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class addmigrationInitialMigration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -29,6 +29,22 @@ namespace ContactManager.API.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_User", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserLogs",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Action = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
+                    UserName = table.Column<string>(type: "TEXT", maxLength: 30, nullable: false),
+                    Details = table.Column<string>(type: "TEXT", maxLength: 200, nullable: false),
+                    TimeStamp = table.Column<DateTime>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserLogs", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -149,6 +165,9 @@ namespace ContactManager.API.Migrations
 
             migrationBuilder.DropTable(
                 name: "Number");
+
+            migrationBuilder.DropTable(
+                name: "UserLogs");
 
             migrationBuilder.DropTable(
                 name: "Contacts");

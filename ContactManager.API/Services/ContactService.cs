@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using ContactManager.API.Entities;
+using ContactManager.API.Exceptions;
 using ContactManager.API.Models;
 using ContactManager.API.Models.CreationDtos;
 using ContactManager.API.Models.UpdateDtos;
 using ContactManager.API.Repositories;
 using ContactManager.API.Repositories.Shared;
+using ContactManager.API.Services.AuditLogsServices;
 using System.Net;
 
 namespace ContactManager.API.Services
@@ -15,43 +17,59 @@ namespace ContactManager.API.Services
         private readonly ISharedRepository _sharedRepository;
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
+        private readonly IContactLogsService _contactLogsService;
 
         public ContactService(IContactRepository repository,
                               ISharedRepository sharedRepository,
                               IUserRepository userRepository,
-                              IMapper mapper)
+                              IMapper mapper,
+                              IContactLogsService contactLogsService)
         {
             this._repository = repository;
             this._sharedRepository = sharedRepository;
             this._userRepository = userRepository;
             this._mapper = mapper;
+            this._contactLogsService = contactLogsService;
         }
         public async Task<bool> CreateContact(int userId, ContactCreationDto contact)
         {
             var user = await _userRepository.GetUser(userId);
             if(user == null)
             {
-                return false;
+                throw new UserNotFoundException("User not found");
             }
 
             var contactToCreate = _mapper.Map<Contact>(contact);
             this._repository.CreateContact(user, contactToCreate);
 
-            return await this._sharedRepository.SaveChangesAsync();
+            if(!await this._sharedRepository.SaveChangesAsync())
+            {
+                return false;
+            }
+
+            _contactLogsService.CreateLog("Create", user.Username, $"{contactToCreate.FirstName} {contactToCreate.LastName}", "Contact Created");
+            return true;
         }
 
         public async Task<bool> DeleteContact(int userId, int contactId)
         {
-            if (!await this._sharedRepository.UserExists(userId))
+            var user = await _userRepository.GetUser(userId);
+            if (user == null)
             {
-                return false;
+                throw new UserNotFoundException("User not found");
             }
             var contactEntity = await this._repository.GetContact(contactId);
             if(contactEntity == null) { return false; }
 
             this._repository.DeleteContact(contactEntity);
 
-            return await this._sharedRepository.SaveChangesAsync();
+            if(!await this._sharedRepository.SaveChangesAsync())
+            {
+                return false;
+            }
+
+            _contactLogsService.CreateLog("Delete", user.Username, $"{contactEntity.FirstName} {contactEntity.LastName}", "Contact Deleted");
+            return true;
         }
             
          
@@ -85,16 +103,22 @@ namespace ContactManager.API.Services
                                               int contactId, 
                                               ContactUpdateDto contact)
         {
-            if (!await this._sharedRepository.UserExists(userId))
+            var user = await _userRepository.GetUser(userId);
+            if (user == null)
             {
-                return false;
+                throw new UserNotFoundException("User not found");
             }
             var contactEntity = await this._repository.GetContact(contactId);
             if(contactEntity == null) { return false; }
 
             this._mapper.Map(contact, contactEntity);
 
-            return await this._sharedRepository.SaveChangesAsync();
+            if(!await this._sharedRepository.SaveChangesAsync())
+            {
+                return false;
+            }
+            _contactLogsService.CreateLog("Update", user.Username, $"{contactEntity.FirstName} {contactEntity.LastName}", "Contact Updated");
+            return true;
         }
 
         async Task<ContactUpdateDto> IContactService.GetContactToPatch(int userId, int contactId)
