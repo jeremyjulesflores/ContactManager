@@ -1,9 +1,4 @@
-﻿using ContactManager.API.Entities;
-using static ContactManager.API.Entities.Types;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-
-namespace ContactManager.API.Models
+﻿namespace ContactManager.API.Models
 {
     public class NumberDto
     {

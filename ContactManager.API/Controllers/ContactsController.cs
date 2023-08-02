@@ -1,8 +1,8 @@
-﻿using AutoMapper;
-using ContactManager.API.Models;
+﻿using ContactManager.API.Models;
 using ContactManager.API.Models.CreationDtos;
-using ContactManager.API.Repositories;
+using ContactManager.API.Models.UpdateDtos;
 using ContactManager.API.Services;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ContactManager.API.Controllers
@@ -56,6 +56,67 @@ namespace ContactManager.API.Controllers
 
             return Ok("Contact Successfully Created");
         }
-  
+
+        [HttpPut("{contactId}")]
+        public async Task<ActionResult> UpdateAddressAsync(int userId,
+                                          int contactId,
+                                          ContactUpdateDto contact)
+        {
+            var updated = await _contactService.UpdateContact(userId, contactId, contact);
+            if (!updated)
+            {
+                return NotFound();
+            }
+
+            return Ok("Contact Updated");
+        }
+
+        [HttpPatch("{contactId}")]
+        public async Task<ActionResult> PartiallyUpdateAddress(int userId,
+                                                   int contactId,
+                                                   JsonPatchDocument<ContactUpdateDto> patchDocument)
+        {
+            var contactToPatch = await _contactService.GetContactToPatch(userId, contactId);
+            if (contactToPatch == null)
+            {
+                return NotFound();
+            }
+
+
+            patchDocument.ApplyTo(contactToPatch, ModelState);
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            //Check if Model is correct
+            //If Request is invalid it will return false and return a Bad Requet
+            if (!TryValidateModel(contactToPatch))
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (!await _contactService.PatchContact(userId, contactId, contactToPatch))
+            {
+                return BadRequest(ModelState);
+            }
+
+            return Ok("Contact Successfully Updated");
+        }
+
+        [HttpDelete("{contactId}")]
+        //[ValidateAntiForgeryToken] //Idk autocompleted
+        public async Task<ActionResult> DeleteAddress(int userId,
+                                          int contactId)
+        {
+            var deleted = await _contactService.DeleteContact(userId, contactId);
+
+            if (!deleted)
+            {
+                return NotFound();
+            }
+            return Ok("Delete Successful");
+        }
+
     }
 }

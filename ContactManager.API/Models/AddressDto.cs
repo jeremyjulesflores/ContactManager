@@ -1,6 +1,4 @@
-﻿using static ContactManager.API.Entities.Types;
-
-namespace ContactManager.API.Models
+﻿namespace ContactManager.API.Models
 {
     public class AddressDto
     {

@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace ContactManager.API.Models.UpdateDtos
+namespace ContactManager.API.Models.CreationDtos
 {
-    public class ContactUpdateDto
+    public class ContactUserCreationDto
     {
         [Required(ErrorMessage = "First Name is Required")]
         [MaxLength(50)]
@@ -10,8 +10,7 @@ namespace ContactManager.API.Models.UpdateDtos
         [Required(ErrorMessage = "Last Name is Required")]
         [MaxLength(50)]
         public string LastName { get; set; } = string.Empty;
-        public bool Favorite { get; set; }
-        public bool Emergency { get; set; }
-        public string? Note { get; set; }
+        //add here
+        //public bool isUser true
     }
 }

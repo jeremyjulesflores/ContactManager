@@ -6,19 +6,27 @@ namespace ContactManager.API.Repositories
     public interface IContactRepository
     {
         /// <summary>
-        /// Get All Contacts
+        /// Gets all contacts
         /// </summary>
-        /// <returns>IEnumerable of Type Contact</returns>
+        /// <param name="userId">Id of user where contacts come from</param>
+        /// <returns>IEnumerable of contacts</returns>
         Task<IEnumerable<Contact>> GetContacts(int userId);
         /// <summary>
-        /// Get a Contact with or without details
+        /// Get contact
         /// </summary>
-        /// <param name="contactId">Contact Id</param>
-        /// <param name="includeContactDetails">Bool if details are included or not</param>
-        /// <returns>A Contact with or without details</returns>
+        /// <param name="contactId">Id of contact to get</param>
+        /// <returns></returns>
         Task<Contact?> GetContact(int contactId);
-
+        /// <summary>
+        /// Creates contact
+        /// </summary>
+        /// <param name="user">User object to where the contact will be created</param>
+        /// <param name="contact">Contact to be created</param>
         void CreateContact(User user, Contact contact);
+        /// <summary>
+        /// Deletes contact
+        /// </summary>
+        /// <param name="contact">Contact object to delete</param>
         void DeleteContact(Contact contact);
 
     }

@@ -5,6 +5,7 @@ using ContactManager.API.Models.CreationDtos;
 using ContactManager.API.Models.UpdateDtos;
 using ContactManager.API.Repositories;
 using ContactManager.API.Repositories.Shared;
+using System.Net;
 
 namespace ContactManager.API.Services
 {
@@ -39,7 +40,7 @@ namespace ContactManager.API.Services
             return await this._sharedRepository.SaveChangesAsync();
         }
 
-        public async Task<bool> DeleteContact(int contactId, int userId)
+        public async Task<bool> DeleteContact(int userId, int contactId)
         {
             if (!await this._sharedRepository.UserExists(userId))
             {
@@ -47,13 +48,14 @@ namespace ContactManager.API.Services
             }
             var contactEntity = await this._repository.GetContact(contactId);
             if(contactEntity == null) { return false; }
+
             this._repository.DeleteContact(contactEntity);
 
             return await this._sharedRepository.SaveChangesAsync();
         }
             
          
-        public async Task<ContactDto?> GetContact(int contactId, int userId)
+        public async Task<ContactDto?> GetContact(int userId, int contactId)
         {
             if(!await this._sharedRepository.UserExists(userId))
             {
@@ -93,6 +95,21 @@ namespace ContactManager.API.Services
             this._mapper.Map(contact, contactEntity);
 
             return await this._sharedRepository.SaveChangesAsync();
+        }
+
+        async Task<ContactUpdateDto> IContactService.GetContactToPatch(int userId, int contactId)
+        {
+            var contactEntity = await _repository.GetContact(contactId);
+
+            return _mapper.Map<ContactUpdateDto>(contactEntity);
+        }
+
+        async Task<bool> IContactService.PatchContact(int userId, int contactId, ContactUpdateDto contact)
+        {
+            var contactEntity = await _repository.GetContact(contactId);
+            _mapper.Map(contact, contactEntity);
+
+            return await _sharedRepository.SaveChangesAsync();
         }
     }
 }

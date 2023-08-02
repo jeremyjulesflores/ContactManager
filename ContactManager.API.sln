@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32929.385
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ContactManager.API", "ContactManager.API\ContactManager.API.csproj", "{1B0FDAFC-0741-4E6A-A9C4-A06C204D2191}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ContactManager.API", "ContactManager.API\ContactManager.API.csproj", "{1B0FDAFC-0741-4E6A-A9C4-A06C204D2191}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

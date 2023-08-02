@@ -37,7 +37,6 @@ namespace ContactManager.API.Services
             var emailToCreate = _mapper.Map<Email>(email);
 
             this._repository.CreateEmail(contact, emailToCreate);
-
             return await this._sharedRepository.SaveChangesAsync();
         }
 
