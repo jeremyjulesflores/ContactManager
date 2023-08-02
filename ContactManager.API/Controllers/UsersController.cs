@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using ContactManager.API.Entities;
+using ContactManager.API.Exceptions;
 using ContactManager.API.Models;
 using ContactManager.API.Models.CreationDtos;
 using ContactManager.API.Repositories;
 using ContactManager.API.Repositories.Shared;
+using ContactManager.API.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SQLitePCL;
@@ -16,159 +18,124 @@ namespace ContactManager.API.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IUserRepository _repository;
+        private readonly IAuthService _authService;
         private readonly IMapper _mapper;
         private readonly ISharedRepository _sharedRepository;
+        private readonly IContactService _contactService;
 
         public UsersController(IUserRepository repository,
+                               IAuthService authService,       
                                IMapper mapper,
-                               ISharedRepository sharedRepository)
+                               ISharedRepository sharedRepository,
+                               IContactService contactService)
         {
             this._repository = repository;
+            this._authService = authService;
             this._mapper = mapper;
             this._sharedRepository = sharedRepository;
+            this._contactService = contactService;
         }
 
         [HttpPost("register")]
         public async Task<IActionResult> Register(UserCreationDto request)
         {
-            if (await _repository.EmailExists(request.Email))
+            try
             {
-                return BadRequest("Email already exists");
+                await _authService.CreateUser(request);
+                return Ok("User Successfully Created");
             }
-            if(await _repository.UsernameExists(request.UserName))
+            catch(UserAlreadyExistsException ex)
             {
-                return BadRequest("Username already exists");
+                return BadRequest(ex.Message);
             }
-
-            CreatePasswordHash(request.Password,
-                               out byte[] passwordHash,
-                               out byte[] passwordSalt);
-
-            var user = new User
+            catch (Exception)
             {
-                FirstName = request.FirstName,
-                LastName = request.LastName,
-                Username = request.UserName,
-                Email = request.Email,
-                PasswordHash = passwordHash,
-                PasswordSalt = passwordSalt,
-                VerificationToken = CreateRandomToken()
-            };
-            
-            await _repository.CreateUser(user);
-            await _sharedRepository.SaveChangesAsync();
-
-            return Ok(user);
+                return StatusCode(500,"Something went wrong");
+            }
+         
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login(UserLoginDto request)
         {
-            var user = await _repository.GetUserByUsername(request.UserName);
-            if (user == null)
+            try
             {
-                //change later : Too much information
-                // maybe : Username or Password is incorrect
-                return BadRequest("Username is incorrect");
+                var user = await _authService.LogIn(request);
+
+                //if (user.VerifiedAt == null)
+                //    {
+                //        return BadRequest("Not Verified");
+                //    }
+                return Ok(user);
             }
-
-            
-
-            if (!VerifyPasswordHash(request.Password,
-                                   user.PasswordHash,
-                                   user.PasswordSalt))
+            catch(UserNotFoundException ex)
             {
-                //change later : Too much information
-                // maybe : Username or Password is incorrect
-                return BadRequest("Incorrect Password");
+                return NotFound(ex.Message);
             }
-
-            if (user.VerifiedAt == null)
-                {
-                    return BadRequest("Not Verified");
-                }
-
-            return Ok($"Welcome back, {user.FirstName}");
-        }
-
-        [HttpPost("verify")]
-        public async Task<IActionResult> Verify(string token)
-        {
-            var user = await _repository.GetUserByToken(token);
-            if(user == null)
+            catch(InvalidPasswordException ex)
             {
-                return BadRequest("Invalid Token");
+                return Unauthorized(ex.Message);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "An unexpected error occured.");
             }
             
-            user.VerifiedAt = DateTime.Now;
-            await _sharedRepository.SaveChangesAsync();
-
-            return Ok("User verified!");
         }
 
-        [HttpPost("forgot-password")]
-        public async Task<IActionResult> ForgotPassword(string email)
-        {
-            var user = await _repository.GetUserByEmail(email);
-            if (user == null)
-            {
-                return BadRequest("Invalid Token");
-            }
-
-            user.PasswordResetToken = CreateRandomToken();
-            user.ResetTokenExpires = DateTime.Now.AddHours(3);
-            await _sharedRepository.SaveChangesAsync();
-
-            return Ok("You may now reset your password");
-        }
-
-        [HttpPost("reset-password")]
-        public async Task<IActionResult> ResetPassword(UserChangePasswordDto request)
-        {
-            var user = await _repository.GetUserByResetToken(request.Token);
-            if (user == null || user.ResetTokenExpires < DateTime.Now)
-            {
-                return BadRequest("Invalid Token");
-            }
-
-            CreatePasswordHash(request.Password,
-                               out byte[] passwordHash,
-                               out byte[] passwordSalt);
-
-            user.PasswordHash = passwordHash;
-            user.PasswordSalt = passwordSalt;
-            user.PasswordResetToken = null;
-            user.ResetTokenExpires = null;
+        //[HttpPost("verify")]
+        //public async Task<IActionResult> Verify(string token)
+        //{
+        //    var user = await _repository.GetUserByToken(token);
+        //    if(user == null)
+        //    {
+        //        return BadRequest("Invalid Token");
+        //    }
             
-            await _sharedRepository.SaveChangesAsync();
-            return Ok("Password Successfully Changed");
-        }
+        //    user.VerifiedAt = DateTime.Now;
+        //    await _sharedRepository.SaveChangesAsync();
 
-        private void CreatePasswordHash(string password,
-                                        out byte[] passwordHash,
-                                        out byte[] passwordSalt)
-        {
-            using (var hmac = new HMACSHA512())
-            {
-                passwordSalt = hmac.Key;
-                passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
-            }
-        }
+        //    return Ok("User verified!");
+        //}
 
-        private bool VerifyPasswordHash(string password,
-                                        byte[] passwordHash,
-                                        byte[] passwordSalt)
-        {
-            using (var hmac = new HMACSHA512(passwordSalt))
-            {
-                var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
-                return computedHash.SequenceEqual(passwordHash);
-            }
-        }
+        //[HttpPost("forgot-password")]
+        //public async Task<IActionResult> ForgotPassword(string email)
+        //{
+        //    var user = await _repository.GetUserByEmail(email);
+        //    if (user == null)
+        //    {
+        //        return BadRequest("Invalid Token");
+        //    }
 
-        private string CreateRandomToken()
-        {
-            return Convert.ToHexString(RandomNumberGenerator.GetBytes(64));
-        }
+        //    user.PasswordResetToken = CreateRandomToken();
+        //    user.ResetTokenExpires = DateTime.Now.AddHours(3);
+        //    await _sharedRepository.SaveChangesAsync();
+
+        //    return Ok("You may now reset your password");
+        //}
+
+        //[HttpPost("reset-password")]
+        //public async Task<IActionResult> ResetPassword(UserChangePasswordDto request)
+        //{
+        //    var user = await _repository.GetUserByResetToken(request.Token);
+        //    if (user == null || user.ResetTokenExpires < DateTime.Now)
+        //    {
+        //        return BadRequest("Invalid Token");
+        //    }
+
+        //    CreatePasswordHash(request.Password,
+        //                       out byte[] passwordHash,
+        //                       out byte[] passwordSalt);
+
+        //    user.PasswordHash = passwordHash;
+        //    user.PasswordSalt = passwordSalt;
+        //    user.PasswordResetToken = null;
+        //    user.ResetTokenExpires = null;
+            
+        //    await _sharedRepository.SaveChangesAsync();
+        //    return Ok("Password Successfully Changed");
+        //}
+
+          
     }
 }
