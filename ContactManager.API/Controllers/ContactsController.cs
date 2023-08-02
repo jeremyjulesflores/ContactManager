@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace ContactManager.API.Controllers
 {
     [ApiController]
-    [Route("api/user/{userId}/[controller]")]
+    [Route("api/users/{userId}/[controller]")]
     public class ContactsController : ControllerBase
     {
         private readonly IContactService _contactService;
