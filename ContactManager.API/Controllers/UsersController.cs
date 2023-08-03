@@ -60,17 +60,13 @@ namespace ContactManager.API.Controllers
         {
             try
             {
-                var user = await _authService.LogIn(request);
+                var token = await _authService.LogIn(request);
 
-                //if (user.VerifiedAt == null)
-                //    {
-                //        return BadRequest("Not Verified");
-                //    }
-                return Ok(user);
+                return Ok(token);
             }
             catch(UserNotFoundException ex)
             {
-                return NotFound(ex.Message);
+                return Unauthorized(ex.Message);
             }
             catch(InvalidPasswordException ex)
             {

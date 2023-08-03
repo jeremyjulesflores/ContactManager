@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using ContactManager.API.Entities;
 using ContactManager.API.Exceptions;
+using ContactManager.API.Helper;
 using ContactManager.API.Models;
 using ContactManager.API.Models.CreationDtos;
 using ContactManager.API.Models.UpdateDtos;
@@ -31,7 +32,7 @@ namespace ContactManager.API.Services
             this._mapper = mapper;
             this._contactLogsService = contactLogsService;
         }
-        public async Task<bool> CreateContact(int userId, ContactCreationDto contact)
+        public async Task CreateContact(int userId, ContactCreationDto contact)
         {
             var user = await _userRepository.GetUser(userId);
             if(user == null)
@@ -44,62 +45,66 @@ namespace ContactManager.API.Services
 
             if(!await this._sharedRepository.SaveChangesAsync())
             {
-                return false;
+                throw new Exception("Creation Failed.");
             }
+            _contactLogsService.CreateLog("Create", user.Username, $"{user.Id} : {contactToCreate.FirstName} {contactToCreate.LastName}", "Contact Created");
+           
+        }                            
 
-            _contactLogsService.CreateLog("Create", user.Username, $"{contactToCreate.FirstName} {contactToCreate.LastName}", "Contact Created");
-            return true;
-        }
-
-        public async Task<bool> DeleteContact(int userId, int contactId)
+        public async Task DeleteContact(int userId, int contactId)
         {
             var user = await _userRepository.GetUser(userId);
             if (user == null)
             {
                 throw new UserNotFoundException("User not found");
             }
-            var contactEntity = await this._repository.GetContact(contactId);
-            if(contactEntity == null) { return false; }
+            var contactEntity = await this._repository.GetContact(userId, contactId);
+            if(contactEntity == null) 
+            {
+                throw new ContactNotFoundException("Contact not found");
+            }
 
             this._repository.DeleteContact(contactEntity);
 
             if(!await this._sharedRepository.SaveChangesAsync())
             {
-                return false;
+                throw new Exception("Failed to Delete Contact");
             }
 
-            _contactLogsService.CreateLog("Delete", user.Username, $"{contactEntity.FirstName} {contactEntity.LastName}", "Contact Deleted");
-            return true;
+            
+            _contactLogsService.CreateLog("Delete", user.Username, $"{contactEntity.Id} : {contactEntity.FirstName} {contactEntity.LastName}", "Contact Deleted");
         }
             
-         
         public async Task<ContactDto?> GetContact(int userId, int contactId)
         {
-            if(!await this._sharedRepository.UserExists(userId))
+            var user = await _userRepository.GetUser(userId);
+            if (user == null)
             {
-                return null;
+                throw new UserNotFoundException("User Not Found.");
             }
 
-            var contact = await this._repository.GetContact(contactId);
-
-            if(contact == null) { return null;}
+            var contact = await _repository.GetContact(userId, contactId);
+            if (contact == null)
+            {
+                throw new ContactNotFoundException("Contact Not Found");
+            }
 
             return this._mapper.Map<ContactDto>(contact);
         }
 
         public async Task<IEnumerable<ContactWithoutDetailsDto>> GetContacts(int userId)
         {
-            if (!await this._sharedRepository.UserExists(userId))
+            var user = await _userRepository.GetUser(userId);
+            if (user == null)
             {
-                return null;
+                throw new UserNotFoundException("User Not Found.");
             }
 
             var contacts = await _repository.GetContacts(userId);
-
             return this._mapper.Map<IEnumerable<ContactWithoutDetailsDto>>(contacts);
         }
 
-        public async Task<bool> UpdateContact(int userId, 
+        public async Task UpdateContact(int userId, 
                                               int contactId, 
                                               ContactUpdateDto contact)
         {
@@ -108,32 +113,70 @@ namespace ContactManager.API.Services
             {
                 throw new UserNotFoundException("User not found");
             }
-            var contactEntity = await this._repository.GetContact(contactId);
-            if(contactEntity == null) { return false; }
-
+            var contactEntity = await this._repository.GetContact(userId, contactId);
+            if(contactEntity == null) 
+            {
+                throw new ContactNotFoundException("Contact not found"); 
+            }
+            string details = String.Empty;
+            var difference = GetObjectDifference.GetObjectDifferences<Contact, ContactUpdateDto>(contactEntity, contact);
+            foreach (var differenceEntity in difference)
+            {
+                details += $"{differenceEntity.PropertyName} : From: {differenceEntity.OriginalValue} -> {differenceEntity.ChangedValue};\n";
+            }
             this._mapper.Map(contact, contactEntity);
 
             if(!await this._sharedRepository.SaveChangesAsync())
             {
-                return false;
+                throw new Exception("Failed to Update contact");
             }
-            _contactLogsService.CreateLog("Update", user.Username, $"{contactEntity.FirstName} {contactEntity.LastName}", "Contact Updated");
-            return true;
+            _contactLogsService.CreateLog("Update", user.Username, $"{contactEntity.FirstName} {contactEntity.LastName}", "Contact Updated \n" + details);
+      
         }
 
         async Task<ContactUpdateDto> IContactService.GetContactToPatch(int userId, int contactId)
         {
-            var contactEntity = await _repository.GetContact(contactId);
+            var user = await _userRepository.GetUser(userId);
+            if (user == null)
+            {
+                throw new UserNotFoundException("User Not Found.");
+            }
+            var contactEntity = await _repository.GetContact(userId, contactId);
+            if (contactEntity == null)
+            {
+                throw new ContactNotFoundException("Contact Not Found");
+            }
 
             return _mapper.Map<ContactUpdateDto>(contactEntity);
         }
 
-        async Task<bool> IContactService.PatchContact(int userId, int contactId, ContactUpdateDto contact)
+        async Task IContactService.PatchContact(int userId, int contactId, ContactUpdateDto contact)
         {
-            var contactEntity = await _repository.GetContact(contactId);
+            var user = await _userRepository.GetUser(userId);
+            if (user == null)
+            {
+                throw new UserNotFoundException("User Not Found.");
+            }
+            var contactEntity = await _repository.GetContact(userId, contactId);
+            if (contactEntity == null)
+            {
+                throw new ContactNotFoundException("Contact Not Found");
+            }
+
+            string details = String.Empty;
+            var difference = GetObjectDifference.GetObjectDifferences<Contact, ContactUpdateDto>(contactEntity, contact);
+            foreach (var differenceEntity in difference)
+            {
+                details += $"{differenceEntity.PropertyName} : From: {differenceEntity.OriginalValue} -> {differenceEntity.ChangedValue};\n";
+            }
             _mapper.Map(contact, contactEntity);
 
-            return await _sharedRepository.SaveChangesAsync();
+            if (!await _sharedRepository.SaveChangesAsync())
+            {
+                throw new Exception("Failed Updating Address");
+            };
+
+            _contactLogsService.CreateLog("Update", user.Username, $"{contactEntity.Id} : {contactEntity.FirstName} {contactEntity.LastName}", $"Contact {contactEntity.Id} Patched \n" + details);
         }
     }
 }

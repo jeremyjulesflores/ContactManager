@@ -13,11 +13,12 @@ namespace ContactManager.API.Repositories
         {
             this._context = context ?? throw new ArgumentNullException(nameof(context));
         }
-        public async Task<Contact?> GetContact(int contactId)
+        public async Task<Contact?> GetContact(int userId, int contactId)
         {
           
             
-            return await this._context.Contacts.Include(c => c.Addresses)
+            return await this._context.Contacts.Where(c=>c.UserId == userId)
+                                               .Include(c => c.Addresses)
                                                .Include(c => c.Numbers)
                                                .Include(c => c.Emails)
                                                .FirstOrDefaultAsync(c => c.Id == contactId);

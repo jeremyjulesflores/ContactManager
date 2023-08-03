@@ -1,19 +1,19 @@
-﻿using AutoMapper;
-using ContactManager.API.Entities;
+﻿using ContactManager.API.Entities;
+using ContactManager.API.Exceptions;
 using ContactManager.API.Models;
 using ContactManager.API.Models.CreationDtos;
 using ContactManager.API.Models.UpdateDtos;
-using ContactManager.API.Repositories;
-using ContactManager.API.Repositories.Shared;
 using ContactManager.API.Services;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace ContactManager.API.Controllers
 {
     [Route("api/contacts/{contactId}/[controller]")]
     [ApiController]
+    [Authorize]
     public class AddressesController : ControllerBase
     {
         private readonly ILogger<AddressesController> _logger;
@@ -25,20 +25,27 @@ namespace ContactManager.API.Controllers
             this._logger = logger ?? throw new ArgumentException(nameof(logger));
             this._addressService = addressService;
         }
-        
         [HttpGet]
         public async Task<ActionResult<IEnumerable<AddressDto>>> GetAddressesAsync(int contactId)
         {
+            var user = GetUser();
+            var userId = user.Id;
             try
             {
-                var addresses = await _addressService.GetAddresses(contactId);
-                
-                if(addresses == null)
-                {
-                    return NotFound();
-                }
-
+                var addresses = await _addressService.GetAddresses(userId, contactId);
                 return Ok(addresses);
+            }
+            catch(UserNotFoundException ex)
+            {
+                _logger.LogCritical(
+                    $"User {userId} Not found while getting Addresses for contact with id {contactId}.", ex);
+                return NotFound("Not Found");
+            }
+            catch(ContactNotFoundException ex)
+            {
+                _logger.LogCritical(
+                    $"Contact {contactId} Not found while getting Addresses, ex");
+                return NotFound("Not Found");
             }
             catch(Exception ex)
             {
@@ -53,28 +60,64 @@ namespace ContactManager.API.Controllers
         public async Task<ActionResult<AddressDto>> GetAddressAsync(int contactId,
                                                    int addressId)
         {
-            var address = await _addressService.GetAddress(addressId: addressId, contactId: contactId);
-
-            if(address == null)
+            var user = GetUser();
+            var userId = user.Id;
+            try
             {
-                return NotFound();
+                var address = await _addressService.GetAddress(userId, addressId: addressId, contactId: contactId);
+                if (address == null)
+                {
+                    return NotFound();
+                }
+                return Ok(address);
             }
-
-            return Ok(address);
+            catch(UserNotFoundException ex)
+            {
+                _logger.LogCritical(
+                    $"User {userId} Not found while getting Address for contact with id {contactId}.", ex);
+                return NotFound("Not Found");
+            }
+            catch(ContactNotFoundException ex)
+            {
+                _logger.LogCritical(
+                   $"Contact {contactId} Not found while getting Addresses, ex");
+                return NotFound("Not Found");
+            }
+            catch(Exception ex)
+            {
+                _logger.LogCritical(
+                    $"Exception while getting Addresses for contact with id {contactId}.", ex);
+                return StatusCode(500, "Something went wrong");
+            }
         }
 
         [HttpPost]
         public async Task<ActionResult<AddressDto>> CreateAddressAsync(int contactId,
                                                       AddressCreationDto address)
         {
-            var created = await this._addressService.CreateAddress(contactId, address);
-
-            if (!created)
+            var user = GetUser();
+            var userId = user.Id;
+            try
             {
-                return BadRequest();
-            }
+                await this._addressService.CreateAddress(userId, contactId, address);
 
-            return Ok("Address Successfully Created");
+                return Ok("Address Successfully Created");
+            }
+            catch(UserNotFoundException ex)
+            {
+                _logger.LogCritical($"User {userId} was not found while creating address for contact {contactId}", ex);
+                return NotFound("Not Found");
+            }
+            catch(ContactNotFoundException ex)
+            {
+                _logger.LogCritical($"Contact {contactId} was not found while creating address", ex);
+                return NotFound("Not Found.");
+            }
+            catch(Exception ex)
+            {
+                _logger.LogCritical($"An Exception happened while creating address", ex);
+                return StatusCode(500, "Something went wrong");
+            }
         }
 
         [HttpPut("{addressId}")]
@@ -82,13 +125,28 @@ namespace ContactManager.API.Controllers
                                           int addressId,
                                           AddressUpdateDto address)
         {
-            var updated = await _addressService.UpdateAddress(contactId, addressId, address);
-            if (!updated)
+            var user = GetUser();
+            var userId = user.Id;
+            try
             {
-                return NotFound();
+                await _addressService.UpdateAddress(userId, contactId, addressId, address);
+                return Ok("Address Updated");
             }
-
-            return Ok("Address Updated");
+            catch(UserNotFoundException ex)
+            {
+                _logger.LogCritical($"User {userId} was not found while Updating Address for contact {contactId}", ex);
+                return NotFound("Not Found");
+            }
+            catch(ContactNotFoundException ex)
+            {
+                _logger.LogCritical($"Contact {contactId} was not found while Updating Address", ex);
+                return NotFound("Not Found");
+            }
+            catch(Exception ex)
+            {
+                _logger.LogCritical($"An Exception happened while updating address", ex);
+                return StatusCode(500, "Something went wrong");
+            }
         }
 
         [HttpPatch("{addressId}")]
@@ -96,32 +154,44 @@ namespace ContactManager.API.Controllers
                                                    int addressId,
                                                    JsonPatchDocument<AddressUpdateDto> patchDocument)
         {
-            var addressToPatch = await _addressService.GetAddressToPatch(contactId, addressId);   
-            if (addressToPatch == null)
+            var user = GetUser();
+            var userId = user.Id;
+            try
             {
-                return NotFound();
+                var addressToPatch = await _addressService.GetAddressToPatch(userId, contactId, addressId);
+                patchDocument.ApplyTo(addressToPatch, ModelState);
+
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+                //Check if Model is correct
+                //If Request is invalid it will return false and return a Bad Requet
+                if (!TryValidateModel(addressToPatch))
+                {
+                    return BadRequest(ModelState);
+                }
+
+                await _addressService.PatchAddress(userId, contactId, addressId, addressToPatch);
+
+
+                return Ok("Address Successfully Updated");
             }
-
-
-            patchDocument.ApplyTo(addressToPatch, ModelState);
-
-            if (!ModelState.IsValid)
+            catch(UserNotFoundException ex)
             {
-                return BadRequest(ModelState);
+                _logger.LogCritical($"User {userId} was not found while patching address for contact {contactId}", ex);
+                return NotFound("Not Found");
             }
-            //Check if Model is correct
-            //If Request is invalid it will return false and return a Bad Requet
-            if (!TryValidateModel(addressToPatch))
+            catch(ContactNotFoundException ex)
             {
-                return BadRequest(ModelState);
+                _logger.LogCritical($"Contact {contactId} was not found while patching address");
+                return NotFound("Not Found");
             }
-
-            if(!await _addressService.PatchAddress(contactId, addressId, addressToPatch))
+            catch(Exception ex)
             {
-                return BadRequest(ModelState);
+                _logger.LogCritical("An Exception happened while patching address", ex);
+                return StatusCode(500, "Something went wrong");
             }
-
-            return Ok("Address Successfully Updated");
         }
 
         [HttpDelete("{addressId}")]
@@ -129,13 +199,45 @@ namespace ContactManager.API.Controllers
         public async Task<ActionResult> DeleteAddress(int contactId,
                                           int addressId)
         {
-            var deleted = await _addressService.DeleteAddress(contactId, addressId);
-
-            if (!deleted)
+            var user = GetUser();
+            var userId = user.Id;
+            try
             {
-                return NotFound();
+                await _addressService.DeleteAddress(userId, contactId, addressId);
+                return Ok("Delete Successful");
             }
-            return Ok("Delete Successful");
+            catch(UserNotFoundException ex)
+            {
+                _logger.LogCritical($"User {userId} was not found while deleting address for contact {contactId}", ex);
+                return NotFound("Not Found");
+            }
+            catch(ContactNotFoundException ex)
+            {
+                _logger.LogCritical($"Contact {contactId} was not found while deleting address", ex);
+                return NotFound("Not Found");
+            }
+            catch(Exception ex)
+            {
+                _logger.LogCritical("An Exception happened while deleting address", ex);
+                return StatusCode(500, "Something went wrong");
+            }
+        }
+
+        private User GetUser()
+        {
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+            if (identity != null)
+            {
+                var user = identity.Claims;
+                return new User
+                {
+                    Username = user.FirstOrDefault(u => u.Type == ClaimTypes.Name)?.Value,
+                    Id = Convert.ToInt32(user.FirstOrDefault(u => u.Type == "Id")?.Value),
+
+                };
+            }
+            return null;
         }
     }
+
 }

@@ -15,8 +15,9 @@ namespace ContactManager.API.Repositories
         /// Get contact
         /// </summary>
         /// <param name="contactId">Id of contact to get</param>
+        /// <param name="userId">Id User to get contact from</param>
         /// <returns></returns>
-        Task<Contact?> GetContact(int contactId);
+        Task<Contact?> GetContact(int userId,int contactId);
         /// <summary>
         /// Creates contact
         /// </summary>

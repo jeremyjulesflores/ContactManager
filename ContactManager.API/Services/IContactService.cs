@@ -26,14 +26,14 @@ namespace ContactManager.API.Services
         /// <param name="userId">Id of User</param>
         /// <param name="contact">Contact object for creation</param>
         /// <returns></returns>
-        Task<bool> CreateContact(int userId, ContactCreationDto contact);
+        Task CreateContact(int userId, ContactCreationDto contact);
         /// <summary>
         /// Deletes a contact
         /// </summary>
         /// <param name="contactId">Id of contact to delete</param>
         /// <param name="userId">Id of user</param>
         /// <returns></returns>
-        Task<bool> DeleteContact(int userId, int contactId);
+        Task DeleteContact(int userId, int contactId);
         /// <summary>
         /// Updates a contact
         /// </summary>
@@ -41,7 +41,7 @@ namespace ContactManager.API.Services
         /// <param name="contactId">Id of contact to update</param>
         /// <param name="contact">Updated Contact object</param>
         /// <returns></returns>
-        Task<bool> UpdateContact(int userId, int contactId, ContactUpdateDto contact);
+        Task UpdateContact(int userId, int contactId, ContactUpdateDto contact);
         /// <summary>
         /// Get the Contact to Patch
         /// </summary>
@@ -56,6 +56,6 @@ namespace ContactManager.API.Services
         /// <param name="contactId">Id of contact to patch</param>
         /// <param name="contact">Updated Contact object</param>
         /// <returns></returns>
-        Task<bool> PatchContact(int userId, int contactId, ContactUpdateDto contact);
+        Task PatchContact(int userId, int contactId, ContactUpdateDto contact);
     }
 }

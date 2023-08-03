@@ -25,9 +25,9 @@ namespace ContactManager.API.Services
             this._contactRepository = contactRepository;
             this._mapper = mapper;
         }
-        public async Task<bool> CreateNumber(int contactId, NumberCreationDto number)
+        public async Task<bool> CreateNumber(int userId, int contactId, NumberCreationDto number)
         {
-            var contact = await _contactRepository.GetContact(contactId);
+            var contact = await _contactRepository.GetContact(userId, contactId);
             if (contact == null) { return false; }
 
             var numberToCreate = _mapper.Map<Number>(number);
@@ -37,7 +37,7 @@ namespace ContactManager.API.Services
             return await this._sharedRepository.SaveChangesAsync();
         }
 
-        public async Task<bool> DeleteNumber(int contactId, int numberId)
+        public async Task<bool> DeleteNumber(int userId, int contactId, int numberId)
         {
             if(!await _sharedRepository.ContactExists(contactId))
             {
@@ -51,7 +51,7 @@ namespace ContactManager.API.Services
 
         }
 
-        public async Task<NumberDto> GetNumber(int contactId, int numberId)
+        public async Task<NumberDto> GetNumber(int userId, int contactId, int numberId)
         {
             if (!await _sharedRepository.ContactExists(contactId))
             {
@@ -63,7 +63,7 @@ namespace ContactManager.API.Services
             return this._mapper.Map<NumberDto>(numberEntity);
         }
 
-        public async Task<IEnumerable<NumberDto>> GetNumbers(int contactId)
+        public async Task<IEnumerable<NumberDto>> GetNumbers(int userId, int contactId)
         {
             if (!await _sharedRepository.ContactExists(contactId))
             {
@@ -74,7 +74,7 @@ namespace ContactManager.API.Services
             return this._mapper.Map<IEnumerable<NumberDto>>(numbersEntity);
         }
 
-        public async Task<bool> UpdateAddress(int contactId, int numberId, NumberUpdateDto number)
+        public async Task<bool> UpdateAddress(int userId, int contactId, int numberId, NumberUpdateDto number)
         {
             if (!await _sharedRepository.ContactExists(contactId))
             {
@@ -86,14 +86,14 @@ namespace ContactManager.API.Services
             return await _sharedRepository.SaveChangesAsync();
         }
 
-        async Task<NumberUpdateDto> INumberService.GetNumberToPatch(int contactId, int numberId)
+        async Task<NumberUpdateDto> INumberService.GetNumberToPatch(int userId, int contactId, int numberId)
         {
             var numberEntity = await _repository.GetNumber(contactId, numberId);
 
             return _mapper.Map<NumberUpdateDto>(numberEntity);
         }
 
-        async Task<bool> INumberService.PatchNumber(int contactId, int numberId, NumberUpdateDto number)
+        async Task<bool> INumberService.PatchNumber(int userId, int contactId, int numberId, NumberUpdateDto number)
         {
             var numberEntity = await _repository.GetNumber(contactId, numberId);
             _mapper.Map(number, numberEntity);
@@ -101,7 +101,7 @@ namespace ContactManager.API.Services
             return await _sharedRepository.SaveChangesAsync();
         }
 
-        async Task<bool> INumberService.UpdateNumber(int contactId, int numberId, NumberUpdateDto number)
+        async Task<bool> INumberService.UpdateNumber(int userId, int contactId, int numberId, NumberUpdateDto number)
         {
             if (!await _sharedRepository.ContactExists(contactId))
             {

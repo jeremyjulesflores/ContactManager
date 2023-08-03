@@ -90,7 +90,7 @@ namespace ContactManager.API.Services
             var user = await _userRepository.GetUserByUsername(loginRequest.UserName);
             if(user == null)
             {
-                throw new UserNotFoundException("User not found.");
+                throw new UserNotFoundException("Invalid username or password.");
             }
 
             if(! await VerifyPasswordHash(loginRequest.Password,
@@ -98,11 +98,11 @@ namespace ContactManager.API.Services
                         user.PasswordSalt))
             {
                 _userLogsService.CreateLog("Login", loginRequest.UserName, "Failed to LogIn, InvalidPassword");
-                throw new InvalidPasswordException("Invalid password.");
+                throw new InvalidPasswordException("Invalid username or password.");
             }
 
             string token = await CreateToken(user);
-
+             
             _userLogsService.CreateLog("Login", loginRequest.UserName, "Logged In");
             return token;
         }
@@ -123,7 +123,8 @@ namespace ContactManager.API.Services
         {
             List<Claim> claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, user.Username)
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim("Id", user.Id.ToString())
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
@@ -132,7 +133,7 @@ namespace ContactManager.API.Services
             var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 
             var token = new JwtSecurityToken(
-                claims:claims,
+                claims: claims,
                 expires: DateTime.Now.AddDays(1),
                 signingCredentials: cred
                 );

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using ContactManager.API.Entities;
 using ContactManager.API.Models;
 using ContactManager.API.Models.CreationDtos;
 using ContactManager.API.Models.UpdateDtos;
@@ -6,10 +7,11 @@ using ContactManager.API.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace ContactManager.API.Controllers
 {
-    [Route("api/contacts/{contactId}/[controller]")]
+    [Route("api/users/{userId}/contacts/{contactId}/[controller]")]
     [ApiController]
     public class NumbersController : ControllerBase
     {
@@ -26,9 +28,11 @@ namespace ContactManager.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<NumberDto>>> GetNumbersAsync(int contactId)
         {
+            var user = GetUser();
+            var userId = user.Id;
             try
             {
-                var numbers = await _numberService.GetNumbers(contactId);
+                var numbers = await _numberService.GetNumbers(userId, contactId);
 
                 if(numbers == null)
                 {
@@ -49,7 +53,9 @@ namespace ContactManager.API.Controllers
         public async Task<ActionResult<AddressDto>> GetNumberAsync(int contactId,
                                                                     int numberId)
         {
-            var number = await _numberService.GetNumber(contactId, numberId);
+            var user = GetUser();
+            var userId = user.Id;
+            var number = await _numberService.GetNumber(userId, contactId, numberId);
 
             if (number == null)
             {
@@ -63,7 +69,9 @@ namespace ContactManager.API.Controllers
         public async Task<ActionResult<NumberDto>> CreateNumberAsync(int contactId,
                                                       NumberCreationDto number)
         {
-            var created = await this._numberService.CreateNumber(contactId, number);
+            var user = GetUser();
+            var userId = user.Id;
+            var created = await this._numberService.CreateNumber(userId, contactId, number);
 
             if (!created)
             {
@@ -78,7 +86,9 @@ namespace ContactManager.API.Controllers
         public async Task<ActionResult> DeleteNumberAsync(int contactId,
                                                       int numberId)
         {
-            var deleted = await _numberService.DeleteNumber(contactId, numberId);
+            var user = GetUser();
+            var userId = user.Id;
+            var deleted = await _numberService.DeleteNumber(userId, contactId, numberId);
 
             if (!deleted)
             {
@@ -92,7 +102,9 @@ namespace ContactManager.API.Controllers
                                           int numberId,
                                           NumberUpdateDto number)
         {
-            var updated = await _numberService.UpdateNumber(contactId, numberId, number);
+            var user = GetUser();
+            var userId = user.Id;
+            var updated = await _numberService.UpdateNumber(userId, contactId, numberId, number);
             if (!updated)
             {
                 return NotFound();
@@ -105,8 +117,11 @@ namespace ContactManager.API.Controllers
         public async Task<ActionResult> PartiallyUpdateAddress(int contactId,
                                                                int numberId,
                                                                JsonPatchDocument<NumberUpdateDto> patchDocument)
+
         {
-            var numberToPatch = await _numberService.GetNumberToPatch(contactId, numberId);
+            var user = GetUser();
+            var userId = user.Id;
+            var numberToPatch = await _numberService.GetNumberToPatch(userId, contactId, numberId);
             if (numberToPatch == null)
             {
                 return NotFound();
@@ -124,12 +139,27 @@ namespace ContactManager.API.Controllers
                 return BadRequest(ModelState);
             }
 
-            if(!await _numberService.PatchNumber(contactId,numberId, numberToPatch))
+            if(!await _numberService.PatchNumber(userId, contactId, numberId, numberToPatch))
             {
                 return BadRequest(ModelState);
             }
 
             return Ok("Number Successfully Updated");
+        }
+        private User GetUser()
+        {
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+            if (identity != null)
+            {
+                var user = identity.Claims;
+                return new User
+                {
+                    Username = user.FirstOrDefault(u => u.Type == ClaimTypes.Name)?.Value,
+                    Id = Convert.ToInt32(user.FirstOrDefault(u => u.Type == "Id")?.Value),
+
+                };
+            }
+            return null;
         }
     }
 }

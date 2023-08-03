@@ -10,51 +10,58 @@ namespace ContactManager.API.Services
         /// Get all Numbers
         /// </summary>
         /// <param name="contactId">Id of contact </param>
+        /// <param name="userId">Id of user </param>
         /// <returns>IEnumerable of Number Objects</returns>
-        Task<IEnumerable<NumberDto>> GetNumbers(int contactId);
+        Task<IEnumerable<NumberDto>> GetNumbers(int userId, int contactId);
         /// <summary>
         /// Get Number
         /// </summary>
         /// <param name="contactId">Id of contact </param>
         /// <param name="numberId">Id of Number to process</param>
+        /// <param name="userId">Id of user </param>
         /// <returns>Number Object</returns>
-        Task<NumberDto> GetNumber(int contactId, int numberId);
+        Task<NumberDto> GetNumber(int userId, int contactId, int numberId);
         /// <summary>
         /// Creates a Number
         /// </summary>
         /// <param name="contactId">Id of contact </param>
         /// <param name="number"></param>
+        /// <param name="userId">Id of user </param>
         /// <returns>True : Created, False : Failed</returns>
-        Task<bool> CreateNumber (int contactId, NumberCreationDto number);
+        Task<bool> CreateNumber (int userId, int contactId, NumberCreationDto number);
         /// <summary>
         /// Deletes a number
         /// </summary>
         /// <param name="contactId">Id of contact </param>
         /// <param name="numberId">Id of Number to process</param>
+        /// <param name="userId">Id of user </param>
         /// <returns></returns>
-        Task<bool> DeleteNumber(int contactId, int numberId);
+        Task<bool> DeleteNumber(int userId, int contactId, int numberId);
         /// <summary>
         /// Updates a number
         /// </summary>
         /// <param name="contactId">Id of contact </param>
         /// <param name="numberId">Id of Number to process</param>
+        /// <param name="userId">Id of user </param>
         /// <param name="number"></param>
         /// <returns></returns>
-        Task<bool> UpdateNumber(int contactId, int numberId, NumberUpdateDto number);
+        Task<bool> UpdateNumber(int userId, int contactId, int numberId, NumberUpdateDto number);
         /// <summary>
         /// Gets a number for patching
         /// </summary>
+        /// <param name="userId">Id of user </param>
         /// <param name="contactId">Id of contact </param>
         /// <param name="numberId">Id of Number to process</param>
         /// <returns></returns>
-        Task<NumberUpdateDto> GetNumberToPatch(int contactId, int numberId);
+        Task<NumberUpdateDto> GetNumberToPatch(int userId, int contactId, int numberId);
         /// <summary>
         /// Patches the number
         /// </summary>
+        /// <param name="userId">Id of user </param>
         /// <param name="contactId">Id of contact </param>
         /// <param name="numberId">Id of Number to process</param>
         /// <param name="number">Updated Number Object</param>
         /// <returns></returns>
-        Task<bool> PatchNumber(int contactId, int numberId, NumberUpdateDto number);
+        Task<bool> PatchNumber(int userId, int contactId, int numberId, NumberUpdateDto number);
     }
 }
