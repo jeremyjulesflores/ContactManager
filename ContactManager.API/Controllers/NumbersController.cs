@@ -1,18 +1,22 @@
 ﻿using AutoMapper;
 using ContactManager.API.Entities;
+using ContactManager.API.Exceptions;
 using ContactManager.API.Models;
 using ContactManager.API.Models.CreationDtos;
 using ContactManager.API.Models.UpdateDtos;
 using ContactManager.API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using SQLitePCL;
 using System.Security.Claims;
 
 namespace ContactManager.API.Controllers
 {
-    [Route("api/users/{userId}/contacts/{contactId}/[controller]")]
+    [Route("api/contacts/{contactId}/[controller]")]
     [ApiController]
+    [Authorize]
     public class NumbersController : ControllerBase
     {
         private readonly INumberService _numberService;
@@ -22,7 +26,7 @@ namespace ContactManager.API.Controllers
                                  ILogger<NumbersController> logger)
         {
             this._numberService = numberService;
-            this._logger = logger;
+            this._logger = logger;  
         }
 
         [HttpGet]
@@ -33,13 +37,17 @@ namespace ContactManager.API.Controllers
             try
             {
                 var numbers = await _numberService.GetNumbers(userId, contactId);
-
-                if(numbers == null)
-                {
-                    return NotFound();
-                }
-
                 return Ok(numbers);
+            }
+            catch(UserNotFoundException ex)
+            {
+                _logger.LogCritical(ex.Message);
+                return NotFound("Not Found");
+            }
+            catch(ContactNotFoundException ex)
+            {
+                _logger.LogCritical(ex.Message);
+                return NotFound("Not Found");
             }
             catch(Exception ex)
             {
@@ -55,14 +63,33 @@ namespace ContactManager.API.Controllers
         {
             var user = GetUser();
             var userId = user.Id;
-            var number = await _numberService.GetNumber(userId, contactId, numberId);
-
-            if (number == null)
+            try
             {
-                return NotFound();
+                var number = await _numberService.GetNumber(userId, contactId, numberId);
+                return Ok(number);
+            }
+            catch (UserNotFoundException ex)
+            {
+                _logger.LogCritical(ex.Message);
+                return NotFound("Not Found");
+            }
+            catch (ContactNotFoundException ex)
+            {
+                _logger.LogCritical(ex.Message);
+                return NotFound("Not Found");
+            }
+            catch (ArgumentNullException ex)
+            {
+                _logger.LogCritical(ex.Message);
+                return NotFound("Not Found");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(
+                    $"Exception while getting Numbers for contact with id {contactId}.", ex);
+                return StatusCode(500, "Something went wrong");
             }
 
-            return Ok(number);
         }
 
         [HttpPost]
@@ -71,14 +98,28 @@ namespace ContactManager.API.Controllers
         {
             var user = GetUser();
             var userId = user.Id;
-            var created = await this._numberService.CreateNumber(userId, contactId, number);
-
-            if (!created)
+            try
             {
-                return BadRequest();
-            }
+                await this._numberService.CreateNumber(userId, contactId, number);
 
-            return Ok("Number Successfully Created");
+                return Ok("Number Successfully Created");
+            }
+            catch(UserNotFoundException ex)
+            {
+                _logger.LogCritical($"User {userId} was not found while creating a number", ex);
+                return NotFound("Not Found");
+            }
+            catch(ContactNotFoundException ex)
+            {
+                _logger.LogCritical($"Contact {contactId} was not found while creating a number", ex);
+                return NotFound("Not Found");
+            }
+            catch(Exception ex)
+            {
+                _logger.LogCritical("An Exception happened while creating a number", ex);
+                return StatusCode(500, "Something went wrong");
+            }
+            
         }
 
         [HttpDelete("{numberId}")]
@@ -88,13 +129,31 @@ namespace ContactManager.API.Controllers
         {
             var user = GetUser();
             var userId = user.Id;
-            var deleted = await _numberService.DeleteNumber(userId, contactId, numberId);
-
-            if (!deleted)
+            try
             {
-                return NotFound();
+                await _numberService.DeleteNumber(userId, contactId, numberId);
+                return Ok("Delete Successful");
             }
-            return Ok("Delete Successful");
+            catch (UserNotFoundException ex)
+            {
+                _logger.LogCritical($"User {userId} was not found while creating a number", ex);
+                return NotFound("Not Found");
+            }
+            catch (ContactNotFoundException ex)
+            {
+                _logger.LogCritical($"Contact {contactId} was not found while creating a number", ex);
+                return NotFound("Not Found");
+            }
+            catch(ArgumentNullException ex)
+            {
+                _logger.LogCritical(ex.Message, ex);
+                return NotFound("Not Found");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical("An Exception happened while creating a number", ex);
+                return StatusCode(500, "Something went wrong");
+            }
         }
 
         [HttpPut("{numberId}")]
@@ -104,13 +163,34 @@ namespace ContactManager.API.Controllers
         {
             var user = GetUser();
             var userId = user.Id;
-            var updated = await _numberService.UpdateNumber(userId, contactId, numberId, number);
-            if (!updated)
+            try
             {
-                return NotFound();
+                await _numberService.UpdateNumber(userId, contactId, numberId, number);
+                return Ok("Address Updated");
+            }
+            catch (UserNotFoundException ex)
+            {
+                _logger.LogCritical($"User {userId} was not found while creating a number", ex);
+                return NotFound("Not Found");
+            }
+            catch (ContactNotFoundException ex)
+            {
+                _logger.LogCritical($"Contact {contactId} was not found while creating a number", ex);
+                return NotFound("Not Found");
+            }
+            catch (ArgumentNullException ex)
+            {
+                _logger.LogCritical(ex.Message, ex);
+                return NotFound("Not Found");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical("An Exception happened while creating a number", ex);
+                return StatusCode(500, "Something went wrong");
             }
 
-            return Ok("Address Updated");
+
+
         }
 
         [HttpPatch("{numberId}")]
@@ -121,30 +201,46 @@ namespace ContactManager.API.Controllers
         {
             var user = GetUser();
             var userId = user.Id;
-            var numberToPatch = await _numberService.GetNumberToPatch(userId, contactId, numberId);
-            if (numberToPatch == null)
+            try
             {
-                return NotFound();
-            }
-            patchDocument.ApplyTo(numberToPatch, ModelState);
+                var numberToPatch = await _numberService.GetNumberToPatch(userId, contactId, numberId);
+                if (numberToPatch == null)
+                {
+                    return NotFound();
+                }
+                patchDocument.ApplyTo(numberToPatch, ModelState);
 
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+                //Check if Model is correct
+                //If Request is invalid it will return false and return a Bad Requet
+                if (!TryValidateModel(numberToPatch))
+                {
+                    return BadRequest(ModelState);
+                }
+
+                await _numberService.PatchNumber(userId, contactId, numberId, numberToPatch);
+                return Ok("Number Successfully Updated");
             }
-            //Check if Model is correct
-            //If Request is invalid it will return false and return a Bad Requet
-            if (!TryValidateModel(numberToPatch))
+            catch (UserNotFoundException ex)
             {
-                return BadRequest(ModelState);
+                _logger.LogCritical($"User {userId} was not found while creating a number", ex);
+                return NotFound("Not Found");
+            }
+            catch (ContactNotFoundException ex)
+            {
+                _logger.LogCritical($"Contact {contactId} was not found while creating a number", ex);
+                return NotFound("Not Found");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical("An Exception happened while creating a number", ex);
+                return StatusCode(500, "Something went wrong");
             }
 
-            if(!await _numberService.PatchNumber(userId, contactId, numberId, numberToPatch))
-            {
-                return BadRequest(ModelState);
-            }
 
-            return Ok("Number Successfully Updated");
         }
         private User GetUser()
         {

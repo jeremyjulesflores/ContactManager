@@ -44,7 +44,7 @@ namespace ContactManager.API.Controllers
             catch(ContactNotFoundException ex)
             {
                 _logger.LogCritical(
-                    $"Contact {contactId} Not found while getting Addresses, ex");
+                    $"Contact {contactId} Not found while getting Addresses, ex", ex);
                 return NotFound("Not Found");
             }
             catch(Exception ex)
@@ -64,7 +64,7 @@ namespace ContactManager.API.Controllers
             var userId = user.Id;
             try
             {
-                var address = await _addressService.GetAddress(userId, addressId: addressId, contactId: contactId);
+                var address = await _addressService.GetAddress(userId, contactId, addressId);
                 if (address == null)
                 {
                     return NotFound();
@@ -80,7 +80,7 @@ namespace ContactManager.API.Controllers
             catch(ContactNotFoundException ex)
             {
                 _logger.LogCritical(
-                   $"Contact {contactId} Not found while getting Addresses, ex");
+                   $"Contact {contactId} Not found while getting Addresses", ex);
                 return NotFound("Not Found");
             }
             catch(Exception ex)
@@ -112,6 +112,11 @@ namespace ContactManager.API.Controllers
             {
                 _logger.LogCritical($"Contact {contactId} was not found while creating address", ex);
                 return NotFound("Not Found.");
+            }
+            catch(ArgumentNullException ex)
+            {
+                _logger.LogCritical(ex.Message);
+                return NotFound("Not Found");
             }
             catch(Exception ex)
             {
@@ -184,7 +189,7 @@ namespace ContactManager.API.Controllers
             }
             catch(ContactNotFoundException ex)
             {
-                _logger.LogCritical($"Contact {contactId} was not found while patching address");
+                _logger.LogCritical($"Contact {contactId} was not found while patching address",ex);
                 return NotFound("Not Found");
             }
             catch(Exception ex)
@@ -216,7 +221,12 @@ namespace ContactManager.API.Controllers
                 _logger.LogCritical($"Contact {contactId} was not found while deleting address", ex);
                 return NotFound("Not Found");
             }
-            catch(Exception ex)
+            catch (ArgumentNullException ex)
+            {
+                _logger.LogCritical(ex.Message);
+                return NotFound("Not Found");
+            }
+            catch (Exception ex)
             {
                 _logger.LogCritical("An Exception happened while deleting address", ex);
                 return StatusCode(500, "Something went wrong");

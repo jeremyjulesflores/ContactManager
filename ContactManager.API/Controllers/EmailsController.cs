@@ -73,7 +73,7 @@ namespace ContactManager.API.Controllers
             var userId = user.Id;
             try
             {
-                var email = await _emailService.GetEmail(userId, emailId: emailId, contactId: contactId);
+                var email = await _emailService.GetEmail(userId, contactId, emailId);
                 return Ok(email);
             }
             catch(UserNotFoundException ex)
