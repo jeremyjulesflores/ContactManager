@@ -3,7 +3,7 @@
     public interface ISharedRepository
     {
         Task<bool> SaveChangesAsync();
-        Task<bool> ContactExists(int contactId);
+        Task<bool> ContactExists(int userId, int contactId);
         Task<bool> UserExists(int userId);
     }
 }

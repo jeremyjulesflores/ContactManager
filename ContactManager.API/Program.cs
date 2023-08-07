@@ -1,4 +1,5 @@
 using ContactManager.API.DbContexts;
+using ContactManager.API.Helper;
 using ContactManager.API.Repositories;
 using ContactManager.API.Repositories.AuditLogsRepository;
 using ContactManager.API.Repositories.Shared;
@@ -58,7 +59,8 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = false
     };
 });
-
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IGetUser, GetUser>();
 //Repositories
 builder.Services.AddScoped<IContactRepository, ContactRepository>();
 builder.Services.AddScoped<IAddressRepository, AddressRepository>();

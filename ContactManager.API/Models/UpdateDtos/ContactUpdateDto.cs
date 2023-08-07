@@ -10,8 +10,8 @@ namespace ContactManager.API.Models.UpdateDtos
         [Required(ErrorMessage = "Last Name is Required")]
         [MaxLength(50)]
         public string LastName { get; set; } = string.Empty;
-        public bool Favorite { get; set; }
-        public bool Emergency { get; set; }
+        public bool Favorite { get; set; } = false;
+        public bool Emergency { get; set; } = false;
         public string? Note { get; set; }
     }
 }

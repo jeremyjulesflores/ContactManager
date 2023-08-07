@@ -28,7 +28,7 @@ namespace ContactManager.API.Services
         /// <param name="number"></param>
         /// <param name="userId">Id of user </param>
         /// <returns>True : Created, False : Failed</returns>
-        Task<bool> CreateNumber (int userId, int contactId, NumberCreationDto number);
+        Task CreateNumber (int userId, int contactId, NumberCreationDto number);
         /// <summary>
         /// Deletes a number
         /// </summary>
@@ -36,7 +36,7 @@ namespace ContactManager.API.Services
         /// <param name="numberId">Id of Number to process</param>
         /// <param name="userId">Id of user </param>
         /// <returns></returns>
-        Task<bool> DeleteNumber(int userId, int contactId, int numberId);
+        Task DeleteNumber(int userId, int contactId, int numberId);
         /// <summary>
         /// Updates a number
         /// </summary>
@@ -45,7 +45,7 @@ namespace ContactManager.API.Services
         /// <param name="userId">Id of user </param>
         /// <param name="number"></param>
         /// <returns></returns>
-        Task<bool> UpdateNumber(int userId, int contactId, int numberId, NumberUpdateDto number);
+        Task UpdateNumber(int userId, int contactId, int numberId, NumberUpdateDto number);
         /// <summary>
         /// Gets a number for patching
         /// </summary>
@@ -62,6 +62,6 @@ namespace ContactManager.API.Services
         /// <param name="numberId">Id of Number to process</param>
         /// <param name="number">Updated Number Object</param>
         /// <returns></returns>
-        Task<bool> PatchNumber(int userId, int contactId, int numberId, NumberUpdateDto number);
+        Task PatchNumber(int userId, int contactId, int numberId, NumberUpdateDto number);
     }
 }

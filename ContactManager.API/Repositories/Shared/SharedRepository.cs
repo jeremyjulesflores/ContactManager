@@ -11,9 +11,9 @@ namespace ContactManager.API.Repositories.Shared
         {
             this._context = context ?? throw new ArgumentNullException(nameof(context));
         }
-        public async Task<bool> ContactExists(int contactId)
+        public async Task<bool> ContactExists(int userId, int contactId)
         {
-            return await _context.Contacts.AnyAsync(c => c.Id == contactId);
+            return await _context.Contacts.Where(c=>c.UserId == userId).AnyAsync(c => c.Id == contactId);
         }
 
         public async Task<bool> SaveChangesAsync()

@@ -88,18 +88,18 @@ namespace ContactManager.API.Services
                                          $"Deleted {emailEntity.Type} email {emailId} : {emailEntity.EmailAddress}");
         }
 
-        public async Task<EmailDto?> GetEmail(int userId, int emailId, int contactId)
+        public async Task<EmailDto?> GetEmail(int userId, int contactId, int emailId)
         {
             if (!await this._sharedRepository.UserExists(userId))
             {
                 throw new UserNotFoundException("User Not Found");
             }
-            if (!await this._sharedRepository.ContactExists(contactId))
+            if (!await this._sharedRepository.ContactExists(userId, contactId))
             {
                 throw new ContactNotFoundException("Contact Not Found");
             }
 
-            var email = await _repository.GetEmail(emailId, contactId);
+            var email = await _repository.GetEmail(contactId, emailId);
             //may be exception here
             return _mapper.Map<EmailDto>(email);
         }
@@ -110,7 +110,7 @@ namespace ContactManager.API.Services
             {
                 throw new UserNotFoundException("User not found");
             }
-            if (!await _sharedRepository.ContactExists(contactId))
+            if (!await _sharedRepository.ContactExists(userId, contactId))
             {
                 throw new ContactNotFoundException("Contact not Found");
             }
@@ -126,7 +126,7 @@ namespace ContactManager.API.Services
             {
                 throw new UserNotFoundException("User not Found");
             }
-            if(! await _sharedRepository.ContactExists(contactId))
+            if(! await _sharedRepository.ContactExists(userId, contactId))
             {
                 throw new ContactNotFoundException("Contact not Found");
             }
@@ -179,13 +179,13 @@ namespace ContactManager.API.Services
             {
                 throw new ContactNotFoundException("Contact not found"); 
             }
-            var emailEntity = await _repository.GetEmail(emailId, contactId);
+            var emailEntity = await _repository.GetEmail(contactId, emailId);
 
             string details = String.Empty;
             var difference = GetObjectDifference.GetObjectDifferences<Email, EmailUpdateDto>(emailEntity, email);
             foreach (var differenceEntity in difference)
             {
-                details += $"{differenceEntity.PropertyName} : From: {differenceEntity.OriginalValue} -> {differenceEntity.ChangedValue};\n";
+                details += $"[{differenceEntity.PropertyName} : From: {differenceEntity.OriginalValue} -> {differenceEntity.ChangedValue}];\n";
             }
             //automapper will override emailEntity with the emails
             _mapper.Map(email, emailEntity);

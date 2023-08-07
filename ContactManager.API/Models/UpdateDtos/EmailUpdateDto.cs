@@ -9,6 +9,7 @@ namespace ContactManager.API.Models.UpdateDtos
         public string Type { get; set; } = string.Empty;
         [Required(ErrorMessage = "Email Address is Required")]
         [MaxLength(50)]
+        [EmailAddress]
         public string EmailAddress { get; set; } = string.Empty;
     }
 }

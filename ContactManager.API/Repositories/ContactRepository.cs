@@ -26,7 +26,9 @@ namespace ContactManager.API.Repositories
 
         public async Task<IEnumerable<Contact>> GetContacts(int userId)
         {
-            return await _context.Contacts.Where(c=>c.UserId == userId).ToListAsync();
+            return await _context.Contacts.Where(c=>c.UserId == userId).
+                                           OrderByDescending(c=> c.Favorite).ThenBy(c=>c.FirstName)
+                                           .ToListAsync();
         }
 
         void IContactRepository.CreateContact(User user, Contact contact)

@@ -89,18 +89,18 @@ namespace ContactManager.API.Services
                                           $"Deleted {addressEntity.Type} address {addressEntity.Id} : {address.AddressDetails}");
         }
 
-        public async Task<AddressDto?> GetAddress(int userId, int addressId, int contactId)
+        public async Task<AddressDto?> GetAddress(int userId, int contactId, int addressId)
         {
             if(!await this._sharedRepository.UserExists(userId))
             {
                 throw new UserNotFoundException("User Not Found");
             }
-            if (!await this._sharedRepository.ContactExists(contactId))
+            if (!await this._sharedRepository.ContactExists(userId, contactId))
             {
                 throw new ContactNotFoundException("Contact Not Found");
             }
 
-            var address = await _repository.GetAddress(addressId, contactId);
+            var address = await _repository.GetAddress(contactId, addressId);
             return _mapper.Map<AddressDto>(address);
         }
 
@@ -110,7 +110,7 @@ namespace ContactManager.API.Services
             {
                 throw new UserNotFoundException("User Not Found");
             }
-            if (!await _sharedRepository.ContactExists(contactId))
+            if (!await _sharedRepository.ContactExists(userId, contactId))
             {
                 throw new ContactNotFoundException("Contact Not Found");
             }
@@ -126,7 +126,7 @@ namespace ContactManager.API.Services
             {
                 throw new UserNotFoundException("User Not Found");
             }
-            if (!await _sharedRepository.ContactExists(contactId))
+            if (!await _sharedRepository.ContactExists(userId,contactId))
             {
                 throw new ContactNotFoundException("Contact Not Found");
             }
