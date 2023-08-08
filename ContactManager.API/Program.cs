@@ -59,6 +59,15 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = false
     };
 });
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()
+        .AllowAnyHeader()
+        .AllowAnyMethod();
+    });
+});
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IGetUser, GetUser>();
 //Repositories
@@ -91,7 +100,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseRouting();
-
+app.UseCors();
 app.UseAuthentication();
 
 app.UseAuthorization();

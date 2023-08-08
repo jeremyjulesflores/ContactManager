@@ -13,7 +13,7 @@ using System.Security.Claims;
 namespace ContactManager.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/contacts")]
     [Authorize]
     public class ContactsController : ControllerBase
     {
@@ -24,6 +24,47 @@ namespace ContactManager.API.Controllers
         {
             this._contactService = _contactService;
             this._getUser = getUser ?? throw new ArgumentNullException(nameof(getUser));
+        }
+        /// <summary>
+        /// Gets a Contact associated with the authenticated user
+        /// </summary>
+        /// <returns>An ActionResult containing ContactWithoutDetailsDto</returns>
+        /// <remarks>
+        /// 
+        /// SAMPLE: Request:
+        ///     GET /api/contacts/1
+        /// 
+        /// </remarks>
+        /// <response code="200">Successfully Get a list of Contact</response>
+        /// <response code="500">Server Error</response>
+        /// <response code="404">User is not Found</response>
+        /// <response code="404">Contact is not Found</response>
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(ContactWithoutDetailsDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [HttpGet("{contactId}")]
+        public async Task<IActionResult> GetContactAsync(int contactId)
+        {
+            try
+            {
+                var user = _getUser.Get();
+                var userId = user.Id;
+                var contact = await _contactService.GetContact(userId, contactId);
+                return Ok(contact);
+            }
+            catch (UserNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (ContactNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Something went wrong");
+            }
         }
         /// <summary>
         /// Gets all Contacts associated with the authenticated user.
@@ -62,48 +103,7 @@ namespace ContactManager.API.Controllers
             }
             
         }
-        /// <summary>
-        /// Gets a Contact associated with the authenticated user
-        /// </summary>
-        /// <returns>An ActionResult containing ContactWithoutDetailsDto</returns>
-        /// <remarks>
-        /// 
-        /// SAMPLE: Request:
-        ///     GET /api/contacts/1
-        /// 
-        /// </remarks>
-        /// <response code="200">Successfully Get a list of Contact</response>
-        /// <response code="500">Server Error</response>
-        /// <response code="404">User is not Found</response>
-        /// <response code="404">Contact is not Found</response>
-        [HttpGet]
-        [Produces("application/json")]
-        [ProducesResponseType(typeof(ContactWithoutDetailsDto), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [HttpGet("{contactId}")]   
-        public async Task<IActionResult> GetContactAsync(int contactId)
-        {
-            try
-            {
-                var user = _getUser.Get();
-                var userId = user.Id;
-                var contact = await _contactService.GetContact(userId, contactId);
-                return Ok(contact);
-            }
-            catch (UserNotFoundException ex) 
-            { 
-                return NotFound(ex.Message);
-            }
-            catch (ContactNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, "Something went wrong");
-            }   
-        }
+        
 
         [HttpPost]
         public async Task<IActionResult> CreateContact(ContactCreationDto contact)
