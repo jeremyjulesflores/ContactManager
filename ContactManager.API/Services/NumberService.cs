@@ -145,7 +145,7 @@ namespace ContactManager.API.Services
             var difference = GetObjectDifference.GetObjectDifferences(numberEntity, number);
             foreach (var differenceEntity in difference)
             {
-                details += $"[{differenceEntity.PropertyName} : From: {differenceEntity.OriginalValue} -> {differenceEntity.ChangedValue}];\n";
+                details += $"[{differenceEntity.PropertyName} : From: {differenceEntity.OriginalValue} -> {differenceEntity.ChangedValue}];";
             }
             _mapper.Map(number, numberEntity);
             if (!await _sharedRepository.SaveChangesAsync())
@@ -155,7 +155,7 @@ namespace ContactManager.API.Services
             
             _contactLogsService.CreateLog("Update", user.Username,
                                         $"{contact.Id} : {contact.FirstName} {contact.LastName}",
-                                        $"Number {numberEntity.Id} Updated \n" + details);
+                                        $"Number {numberEntity.Id} Updated " + details);
 
         }
 
@@ -191,7 +191,7 @@ namespace ContactManager.API.Services
             var difference = GetObjectDifference.GetObjectDifferences<Number, NumberUpdateDto>(numberEntity, number);
             foreach (var differenceEntity in difference)
             {
-                details += $"{differenceEntity.PropertyName} : From: {differenceEntity.OriginalValue} -> {differenceEntity.ChangedValue};\n";
+                details += $"{differenceEntity.PropertyName} : From: {differenceEntity.OriginalValue} -> {differenceEntity.ChangedValue};";
             }
             if (!await _sharedRepository.SaveChangesAsync())
             {
@@ -206,7 +206,7 @@ namespace ContactManager.API.Services
 
             _contactLogsService.CreateLog("Patch", user.Username,
                                         $"{contact.Id} : {contact.FirstName} {contact.LastName}",
-                                        $"Number {numberEntity.Id} Patched \n" + details);
+                                        $"Number {numberEntity.Id} Patched " + details);
         }
     }
 }

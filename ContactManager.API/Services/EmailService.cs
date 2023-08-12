@@ -152,7 +152,7 @@ namespace ContactManager.API.Services
             var difference = GetObjectDifference.GetObjectDifferences<Email, EmailUpdateDto>(emailEntity, email);
             foreach(var differenceEntity in difference)
             {
-                details += $"{differenceEntity.PropertyName} : From : {differenceEntity.OriginalValue} -> {differenceEntity.ChangedValue};\n";
+                details += $"{differenceEntity.PropertyName} : From : {differenceEntity.OriginalValue} -> {differenceEntity.ChangedValue};";
             }
             _mapper.Map(email, emailEntity);
 
@@ -163,7 +163,7 @@ namespace ContactManager.API.Services
 
             _contactLogsService.CreateLog("Patch", user.Username,
                                         $"{contact.Id} : {contact.FirstName} {contact.LastName}",
-                                        $"Email {emailEntity.Id} Patched \n" + details);
+                                        $"Email {emailEntity.Id} Patched " + details);
         }
 
         async Task IEmailService.UpdateEmail(int userId, int contactId, int emailId, EmailUpdateDto email)
@@ -185,13 +185,13 @@ namespace ContactManager.API.Services
             var difference = GetObjectDifference.GetObjectDifferences<Email, EmailUpdateDto>(emailEntity, email);
             foreach (var differenceEntity in difference)
             {
-                details += $"[{differenceEntity.PropertyName} : From: {differenceEntity.OriginalValue} -> {differenceEntity.ChangedValue}];\n";
+                details += $"[{differenceEntity.PropertyName} : From: {differenceEntity.OriginalValue} -> {differenceEntity.ChangedValue}];";
             }
             //automapper will override emailEntity with the emails
             _mapper.Map(email, emailEntity);
             _contactLogsService.CreateLog("Update", user.Username,
                                         $"{contact.Id} : {contact.FirstName} {contact.LastName}",
-                                        $"Email {emailEntity.Id} Updated \n" + details);
+                                        $"Email {emailEntity.Id} Updated " + details);
 
             await _sharedRepository.SaveChangesAsync();
         }

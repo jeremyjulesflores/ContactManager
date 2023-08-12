@@ -9,6 +9,7 @@ namespace ContactManager.API.Services.AuditLogsServices
     public interface IContactLogsService
     {
         void CreateLog(string action, string userName, string contactName, string details);
+        Task<IEnumerable<ContactLogDto>> GetLog(string username);
     }
     public class ContactLogsService : IContactLogsService
     {
@@ -38,6 +39,13 @@ namespace ContactManager.API.Services.AuditLogsServices
             var logToCreate = _mapper.Map<ContactLogs>(log);
             _repository.CreateLog(logToCreate);
             _sharedRepository.SaveChangesAsync();
+        }
+
+       public async Task<IEnumerable<ContactLogDto>> GetLog(string username)
+        {
+            var logs = await _repository.GetLog(username);
+
+            return _mapper.Map<IEnumerable<ContactLogDto>>(logs);
         }
     }
 }

@@ -122,7 +122,7 @@ namespace ContactManager.API.Services
             var difference = GetObjectDifference.GetObjectDifferences<Contact, ContactUpdateDto>(contactEntity, contact);
             foreach (var differenceEntity in difference)
             {
-                details += $"{differenceEntity.PropertyName} : From: {differenceEntity.OriginalValue} -> {differenceEntity.ChangedValue};\n";
+                details += $"{differenceEntity.PropertyName} : From: {differenceEntity.OriginalValue} -> {differenceEntity.ChangedValue};";
             }
             this._mapper.Map(contact, contactEntity);
 
@@ -130,7 +130,7 @@ namespace ContactManager.API.Services
             {
                 throw new Exception("Failed to Update contact");
             }
-            _contactLogsService.CreateLog("Update", user.Username, $"{contactEntity.FirstName} {contactEntity.LastName}", "Contact Updated \n" + details);
+            _contactLogsService.CreateLog("Update", user.Username, $"{contactEntity.FirstName} {contactEntity.LastName}", "Contact Updated " + details);
       
         }
 
@@ -167,7 +167,7 @@ namespace ContactManager.API.Services
             var difference = GetObjectDifference.GetObjectDifferences<Contact, ContactUpdateDto>(contactEntity, contact);
             foreach (var differenceEntity in difference)
             {
-                details += $"{differenceEntity.PropertyName} : From: {differenceEntity.OriginalValue} -> {differenceEntity.ChangedValue};\n";
+                details += $"{differenceEntity.PropertyName} : From: {differenceEntity.OriginalValue} -> {differenceEntity.ChangedValue};";
             }
             _mapper.Map(contact, contactEntity);
 
@@ -176,7 +176,7 @@ namespace ContactManager.API.Services
                 throw new Exception("Failed Updating Address");
             };
 
-            _contactLogsService.CreateLog("Update", user.Username, $"{contactEntity.Id} : {contactEntity.FirstName} {contactEntity.LastName}", $"Contact {contactEntity.Id} Patched \n" + details);
+            _contactLogsService.CreateLog("Update", user.Username, $"{contactEntity.Id} : {contactEntity.FirstName} {contactEntity.LastName}", $"Contact {contactEntity.Id} Patched " + details);
         }
     }
 }

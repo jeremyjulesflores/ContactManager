@@ -13,6 +13,7 @@ namespace ContactManager.API.Services
                                       byte[] passwordHash,
                                       byte[] passwordSalt);
         Task<string> CreateToken(User user);
+        bool Check(TokenUserCheckDto request);
 
            
     }

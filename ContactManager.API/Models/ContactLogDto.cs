@@ -3,6 +3,7 @@
 namespace ContactManager.API.Models
 {
     public class ContactLogDto { 
+        public int Id { get; set; }
         [Required]
         [MaxLength(50)]
         public string Action { get; set; }

@@ -157,7 +157,7 @@ namespace ContactManager.API.Services
             var difference = GetObjectDifference.GetObjectDifferences<Address, AddressUpdateDto>(addressEntity, address);
             foreach (var differenceEntity in difference)
             {
-                details += $"{differenceEntity.PropertyName} : From: {differenceEntity.OriginalValue} -> {differenceEntity.ChangedValue};\n";
+                details += $"{differenceEntity.PropertyName} : From: {differenceEntity.OriginalValue} -> {differenceEntity.ChangedValue};";
             }
             _mapper.Map(address, addressEntity);
 
@@ -166,7 +166,7 @@ namespace ContactManager.API.Services
                 throw new Exception("Failed Updating Address");
             };
 
-            _contactLogsService.CreateLog("Patch", user.Username, $"{contact.Id} : {contact.FirstName} {contact.LastName}", $"Address {addressEntity.Id} Patched \n" + details);
+            _contactLogsService.CreateLog("Patch", user.Username, $"{contact.Id} : {contact.FirstName} {contact.LastName}", $"Address {addressEntity.Id} Patched " + details);
         }
 
         async Task IAddressService.UpdateAddress(int userId, int contactId, int addressId, AddressUpdateDto address)
@@ -192,7 +192,7 @@ namespace ContactManager.API.Services
             var difference = GetObjectDifference.GetObjectDifferences<Address, AddressUpdateDto>(addressEntity, address);
             foreach (var differenceEntity in difference)
             {
-                details += $"{differenceEntity.PropertyName} : From: {differenceEntity.OriginalValue} -> {differenceEntity.ChangedValue};\n";
+                details += $"{differenceEntity.PropertyName} : From: {differenceEntity.OriginalValue} -> {differenceEntity.ChangedValue};";
             }
             //automapper will override addresEntity with the addresss
             _mapper.Map(address, addressEntity);
@@ -201,7 +201,7 @@ namespace ContactManager.API.Services
                 throw new Exception("Failed Updating Address");
             }
 
-            _contactLogsService.CreateLog("Update", user.Username, $"{contact.Id} : {contact.FirstName} {contact.LastName}", $"Address {addressEntity.Id} Updated \n" + details);
+            _contactLogsService.CreateLog("Update", user.Username, $"{contact.Id} : {contact.FirstName} {contact.LastName}", $"Address {addressEntity.Id} Updated " + details);
         }
     }
 }

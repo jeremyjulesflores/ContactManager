@@ -12,6 +12,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using ContactManager.API.Services.AuditLogsServices;
+using ContactManager.API.Helper;
 
 namespace ContactManager.API.Services
 {
@@ -24,13 +25,15 @@ namespace ContactManager.API.Services
         private readonly IContactService _contactService;
         private readonly IConfiguration _configuration;
         private readonly IUserLogsService _userLogsService;
+        private readonly IGetUser _getUser;
 
         public AuthService(IUserRepository userRepository,
                            IMapper mapper,
                            ISharedRepository sharedRepository,
                            IContactService contactService,
                            IConfiguration configuration,
-                           IUserLogsService userLogsService)
+                           IUserLogsService userLogsService,
+                           IGetUser _getUser)
         {
             this._userRepository = userRepository;
             this._mapper = mapper;
@@ -38,6 +41,7 @@ namespace ContactManager.API.Services
             this._contactService = contactService;
             this._configuration = configuration;
             this._userLogsService = userLogsService;
+            this._getUser = _getUser;
         }
         public async Task<PasswordHashResult> CreatePasswordHash(string password)
         {
@@ -77,11 +81,12 @@ namespace ContactManager.API.Services
             if(await _sharedRepository.SaveChangesAsync())
             {
                 _userLogsService.CreateLog("Register", user.Username, "Registered");
-                await _contactService.CreateContact(user.Id, new ContactCreationDto
-                {
-                    FirstName = user.FirstName,
-                    LastName = user.LastName    
-                });
+                //THIS Creates a Contact based on the name of the user
+                //await _contactService.CreateContact(user.Id, new ContactCreationDto
+                //{
+                //    FirstName = user.FirstName,
+                //    LastName = user.LastName    
+                //});
             }
         }
 
@@ -143,7 +148,76 @@ namespace ContactManager.API.Services
                 return new JwtSecurityTokenHandler().WriteToken(token);
             });
 
+            
             return jwt;
+        }
+
+        public bool Check(TokenUserCheckDto request)
+        {
+
+            var token = request.Token;
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            try
+            {
+                var decodedToken = tokenHandler.ReadJwtToken(token);
+           
+                var validationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
+                _configuration.GetSection("AppSettings:Token").Value)),
+                ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ClockSkew = TimeSpan.Zero
+                };
+
+                
+                if (decodedToken.Payload.TryGetValue("exp", out object expValue) && expValue is long expUnixTimestamp)
+                {
+                    // Convert Unix timestamp to DateTime
+                    var expiryDateTime = DateTimeOffset.FromUnixTimeSeconds(expUnixTimestamp).UtcDateTime;
+
+                    // Check if the token has expired
+                    bool isExpired = expiryDateTime < DateTime.UtcNow;
+
+                    if (isExpired)
+                    {
+                        
+                        return false;
+                    }
+                }
+
+                var userName = decodedToken.Claims.FirstOrDefault(u => u.Type == ClaimTypes.Name).Value;
+
+
+                if (userName != request.Username)
+                {
+                    return false;
+                }
+
+                SecurityToken validatedToken;
+                var principal = tokenHandler.ValidateToken(token, validationParameters, out validatedToken);
+            }
+            catch (SecurityTokenInvalidSignatureException)
+            {
+                return false; // Token signature is invalid
+            }
+            catch (SecurityTokenValidationException)
+            {
+                return false; // Other token validation errors
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+
+            
+
+            
+
+            return true;
+            
         }
     }
 

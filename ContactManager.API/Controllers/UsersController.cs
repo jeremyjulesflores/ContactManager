@@ -17,23 +17,12 @@ namespace ContactManager.API.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private readonly IUserRepository _repository;
         private readonly IAuthService _authService;
-        private readonly IMapper _mapper;
-        private readonly ISharedRepository _sharedRepository;
-        private readonly IContactService _contactService;
 
-        public UsersController(IUserRepository repository,
-                               IAuthService authService,       
-                               IMapper mapper,
-                               ISharedRepository sharedRepository,
-                               IContactService contactService)
+        public UsersController(IAuthService authService)
         {
-            this._repository = repository;
             this._authService = authService;
-            this._mapper = mapper;
-            this._sharedRepository = sharedRepository;
-            this._contactService = contactService;
+
         }
 
         [HttpPost("register")]
@@ -77,6 +66,26 @@ namespace ContactManager.API.Controllers
                 return StatusCode(500, "An unexpected error occured.");
             }
             
+        }
+
+        [HttpPost("check")]
+        public async Task<IActionResult> Check (TokenUserCheckDto request)
+        {
+            try
+            {
+                var isValid =  await Task.Run(()=> _authService.Check(request));
+
+                if (isValid)
+                {
+                    return Ok("Token Valid");
+                }
+
+                return BadRequest("Token Invalid");
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "An unexpected error occured.");
+            }
         }
 
         //[HttpPost("verify")]
