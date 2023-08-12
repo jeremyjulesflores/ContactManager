@@ -4,9 +4,10 @@ import './App.css'
 import SignupPage from './pages/SignupPage';
 import LogInPage from './pages/LogInPage';
 import HomePage from './pages/HomePage';
-import Contacts from './pages/2.Contacts/Contacts';
-import ContactDetails from './pages/4.ContactDetails/ContactDetails';
-import NoContactDetails from './pages/4.ContactDetails/NoContactDetails';
+import ContactDetails from './pages/Contact/ContactDetails';
+import PageNotFound from './pages/PageNotFound';
+import History from './pages/History';
+import NavBar from './components/header/Navbar';
 
 function App() {
 
@@ -35,13 +36,15 @@ function App() {
     <div className="">
        <div className="">
      <Router>
+        
         <Routes>
             <Route path="/" element={<LogInPage/>} />
             <Route path="/signup" element={<SignupPage/>} />
-            <Route path="/home" element={<HomePage/>}>
-              <Route path = 'contacts' element = {<NoContactDetails/>}/>
-              <Route path = 'contacts/:Id' element = {<ContactDetails/>}/>
+            <Route path="/contacts" element={<HomePage/>}>
+              <Route path = ':Id' element = {<ContactDetails/>}/>
             </Route>
+            <Route path = '/history' element = {<History/>}/>
+            <Route path = '*' element = {<PageNotFound/>}/>
         </Routes>
       </Router>
     </div>

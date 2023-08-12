@@ -1,25 +1,37 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import NavBar from "../components/header/Navbar";
-import Contacts from './2.Contacts/Contacts';
-import ContactDetails from './4.ContactDetails/ContactDetails';
+import Contacts from './Contact/Contacts';
+import ContactDetails from './Contact/ContactDetails';
 import Footer from '../components/footer/Footer';
-import NoContactDetails from './4.ContactDetails/NoContactDetails';
+import { useState, Fragment } from 'react';
+import { Dialog, Transition} from '@headlessui/react'
+import { XMarkIcon } from '@heroicons/react/24/outline'
+import CreateContact from './Contact/CreateContact';
+
 const HomePage = () => {
+    const [open, setOpen] = useState(false);
+
+
   return (
   
     <div className ="h-screen flex flex-col">
         <NavBar/>
             <div className ="flex-1 flex overflow-y-hidden">
                 <div className ="w-1/4 overflow-y-auto">
-                    <Contacts/>
+                    <Contacts isCreateOpen = {open}
+                    setIsCreateOpen={setOpen}/>
                 </div>
                 <div className ="w-3/4 overflow-y-auto">
+               
                     <ContactDetails/>
+                    
                 </div>
+                
+                <CreateContact isCreateOpen = {open}
+                setIsCreateOpen={setOpen}/>    
             </div>
         <Footer/>
     </div>
-       
             
     
   )

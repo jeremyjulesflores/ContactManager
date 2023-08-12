@@ -1,8 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { loginFields } from "../constants/formFields";
 import FormAction from "./FormAction";
 import FormExtra from "./FormExtra";
 import Input from "./Input";
+import axios from 'axios';
+
+
+
 
 const fields=loginFields;
 let fieldsState = {};
@@ -11,7 +15,22 @@ fields.forEach(field=>fieldsState[field.id]='');
 export default function Login(){
     const [loginState,setLoginState]=useState(fieldsState);
     const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const[rememberMe, setRememberMe] = useState(false);
 
+    useEffect(()=>{
+      const storedRememberMe = localStorage.getItem('rememberMe');
+      const token = localStorage.getItem('authToken');
+      if(storedRememberMe === 'true'){
+        setRememberMe(true);
+        if(isAuthTokenValid(token)){
+          window.location.href ='/contacts';
+        }
+      }
+    })
+    const handleRememberMe = (e) =>{
+      setRememberMe(e.target.checked); 
+    }
 
     const handleChange=(e)=>{
         setLoginState({...loginState,[e.target.id]:e.target.value})
@@ -19,35 +38,88 @@ export default function Login(){
     }
 
     const handleSubmit=(e)=>{
+        setError("");
+        setIsLoading(true);
         e.preventDefault();
         authenticateUser();
     }
 
-    //Authenticate VIA API
-    const authenticateUser = () =>{
-      const url = `https://localhost:7274/api/users/login`;
-        fetch(url,{
-          method: 'POST',
-          headers:{
-            'Content-Type': 'application/json'
-          },
-          body:JSON.stringify({
-            username: loginState.username,
-            password: loginState.password
-          })
-        }).then(response=>response.text())
-        .then(data=>{
-          if(data.length <= 30){
-            setError(data)
+
+   
+    const isAuthTokenValid = async (authToken) =>{
+      try{
+        const response = await axios.post('https://localhost:7274/api/users/check', {
+          token : authToken,
+          username : loginState.username
+        }, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+          if(response.status === 200){
+            return true;
           }else{
-            localStorage.setItem('authToken', data)
-            window.location.href = '/home';
+            return false;
           }
         })
-        .catch(e=> {
-          console.log(e)
-          setError(e)
+        .catch(error =>{
+          //Handle errors
+        });
+      }
+      catch(error){
+        //Handle errors
+        return false;
+      }
+       
+
+    };
+    //Authenticate VIA API
+    const authenticateUser = async () =>{
+      try{
+        await axios.post("https://localhost:7274/api/users/login", {
+          username: loginState.username,
+          password: loginState.password
+        }, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
         })
+        .then(response =>{
+          if (response.status == 200){
+  
+            if(isAuthTokenValid(response.data)){
+              console.log("Valid Token");
+              localStorage.setItem('authToken', response.data)
+              window.location.href ='/contacts';
+              if(rememberMe){
+                localStorage.setItem('rememberMe', rememberMe )
+              }else if(!rememberMe){
+                localStorage.removeItem('rememberMe');
+              }
+            }
+          }else{
+            setError("Something went wrong");
+          }
+        })
+      }
+      catch(error){
+        if(error.response){
+          if(error.response.status === 401){
+            setError("Invalid Credentials");
+          }else{
+            setError("Something went wrong");
+          }
+        }else if (error.message === "Network Error"){
+          setError("Network Error");
+          console.log(error);
+        }else{
+          setError("Something went wrong");
+        }
+      }
+      finally{
+        setIsLoading(false);
+      }
     }
 
     return(
@@ -73,8 +145,8 @@ export default function Login(){
             {error && <p className="text-red-500">{error}</p>} {/* Display error message if error is not empty */}
         </div>
         
-        <FormExtra/>
-        <FormAction handleSubmit={handleSubmit} text="Login"/>
+        <FormExtra handleRememberMe={handleRememberMe}/>
+        <FormAction handleSubmit={handleSubmit} text="Login" isLoading = {isLoading}/>
 
       </form>
     )

@@ -2,17 +2,14 @@ import { Fragment } from 'react'
 import { Disclosure, Menu, Transition } from '@headlessui/react'
 import { Bars3Icon, BellIcon, PhoneIcon, UserIcon, XMarkIcon } from '@heroicons/react/24/outline'
 
-const navigation = [
-  { name: 'Contacts', href: '/', current: true },
-  { name: 'Emergency', href: '/emergency', current: false },
-  { name: 'About', href: '/', current: false },
-]
-
-function classNames(...classes) {
-  return classes.filter(Boolean).join(' ')
-}
-
-export default function NavBar() {
+export default function NavBar({setEmergency}) {
+  const navigation = [
+    { name: 'Contacts', click: ()=> window.location.href ='/contacts'},
+    { name: 'History', click: ()=> window.location.href ='/history'},
+  ]
+  function classNames(...classes) {
+    return classes.filter(Boolean).join(' ')
+  }
   return (
     <Disclosure as="nav" className="bg-gray-900">
       {({ open }) => (
@@ -40,12 +37,9 @@ export default function NavBar() {
                     {navigation.map((item) => (
                       <a
                         key={item.name}
-                        href={item.href}
-                        className={classNames(
-                          item.current ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white',
-                          'rounded-md px-3 py-2 text-sm font-medium'
-                        )}
-                        aria-current={item.current ? 'page' : undefined}
+                        onClick={item.click}
+                        className='text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium'
+                        
                       >
                         {item.name}
                       </a>
@@ -87,6 +81,7 @@ export default function NavBar() {
                         {({ active }) => (
                           <a
                             href="/"
+                            onClick={()=>{localStorage.removeItem('rememberMe')}}
                             className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
                           >
                             Sign out
