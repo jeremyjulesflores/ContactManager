@@ -26,7 +26,9 @@ namespace ContactManager.API.Repositories.AuditLogsRepository
 
         public async Task<IEnumerable<ContactLogs>> GetLog(string username)
         {
-            return await _context.ContactLogs.Where(c => c.UserName == username).ToListAsync();
+            return await _context.ContactLogs.Where(c => c.UserName == username)
+                .OrderByDescending(c=>c.TimeStamp)
+                .ToListAsync();
         }
     }
 }

@@ -1,15 +1,21 @@
 import { EnvelopeOpenIcon, FolderIcon, HomeIcon, HomeModernIcon, PencilIcon, PencilSquareIcon, PhoneIcon, PlusIcon, TrashIcon, UserCircleIcon } from "@heroicons/react/24/outline";
 import { useParams } from "react-router-dom";
-import { EnvelopeIcon, UserIcon } from '@heroicons/react/20/solid'
+import { EnvelopeIcon, HashtagIcon, UserIcon } from '@heroicons/react/20/solid'
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Details from "../../components/Details";
 import { addressTypes, emailTypes, numberTypes } from "../../constants/childrenTypes";
-import { createChildrenAddress, createChildrenEmail, createChildrenNumber } from "../../constants/formFields";
+import { createChildrenAddress, createChildrenEmail, createChildrenNumber, createContactFields } from "../../constants/formFields";
 import { createAddress, createEmail, createNumber, deleteAddress, deleteEmail, deleteNumber, getEmail, patchNotes, updateAddress, updateEmail, updateNumber } from "../../API service/ApiService";
+import Slider from "../../components/Slider";
+import Input from "../../components/Input";
+import FormAction from "../../components/FormAction";
+import Popup from "../../components/Popup";
 
 
-
+const fields=createContactFields;
+let fieldsState = {};
+fields.forEach(field=>fieldsState[field.id]='');
 const ContactDetails = () => {
     const {Id} = useParams();
     const [address, setAddress] = useState([]);
@@ -18,6 +24,12 @@ const ContactDetails = () => {
     const [contact, setContact]= useState([]);
     const [note, setNote] = useState('');
     const [editing, setEditing] = useState(false);
+    const [editContact, setEditContact] = useState(false);
+    const [editContactPopup, setEditContactPopup] = useState(false);
+    const [inputText, setInputText] = useState('');
+    const [contactUpdateState, setContactUpdateState]= useState(fieldsState);
+    const [error, setError] = ('');
+    const [isLoading, setIsLoading] = useState(false);
   
 
 
@@ -173,7 +185,12 @@ const updateNote = () =>{
     return(deleteAddress(request));
   }
 
-  
+  const contactUpdateNameHandler = (req) =>{
+
+  }
+  const handleChange=(e)=>{
+    setContactUpdateState({...contactUpdateState,[e.target.id]:e.target.value})
+}
 
   return (
     <div>
@@ -193,8 +210,50 @@ const updateNote = () =>{
     <div className="flex justify-center">
         <UserIcon className="h-14 w-14" />
     </div>
-    <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-       {contact.firstName} {contact.lastName}
+    <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 flex flex -1 justify-center" >
+       <p>{contact.firstName} {contact.lastName}</p>
+       <PencilSquareIcon  className="h-7 w-4 hover:text-green-400 cursor-pointer"
+        onClick={()=> setEditContact(true)}/>
+       <Slider
+       open = {editContact}
+       setOpen = {setEditContact}
+       title = "Update Contact"
+       body = {
+        <div>
+                <form className="mt-8 space-y-6" onSubmit={contactUpdateNameHandler}>
+                    {
+                        fields.map(field=>
+                                <Input
+                                    key={field.id}
+                                    handleChange={handleChange}
+                                    value={contactUpdateState[field.id]}
+                                    labelText={field.labelText}
+                                    labelFor={field.labelFor}
+                                    id={field.id}
+                                    name={field.name}
+                                    type={field.type}
+                                    isRequired={field.isRequired}
+                                    placeholder={field.placeholder}
+                            />
+                        
+                        )
+                    }
+                    {error && <p className="text-red-500">{error}</p>} {/* Display error message if error is not empty */}
+                    <FormAction handleSubmit={contactUpdateNameHandler} text={`Update Contact`} isLoading = {isLoading}/>
+                    <Popup
+                        open ={editContactPopup}
+                        setOpen={editContactPopup}
+                        bigText= {`Updated Contact`}
+                        body = {
+                        <p className="text-sm text-gray-500">
+                            Contact Updated Successfully
+                        </p>}
+                        buttonText = "Ok"
+                        onClickHandler = {()=> {setEditContactPopup(false);{window.location.href = `/contacts/${Id}`}}}/>
+                    </form>                        
+            </div>
+       }
+       />
     </h2>
       <div className="mt-6 border-t border-gray-100">
           <dl className="divide-y divide-gray-100">
@@ -250,7 +309,7 @@ const updateNote = () =>{
             </div>
             <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
               <dt className="text-xl font-medium leading-6 text-gray-900 flex">
-                <HomeIcon className ="h-7 w-10"/>
+                <HashtagIcon className ="h-7 w-10"/>
                 Note
               </dt>
               <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">

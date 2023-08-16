@@ -27,14 +27,17 @@ const Contacts = ({isCreateOpen, setIsCreateOpen}) => {
                     return response.data;
                 } else if (response.status === 401) {
                     // Handle unauthorized access here (refresh token or redirect to login)
-                    return null;
+                    localStorage.setItem('rememberMe', false);
+                    window.location.href = "/"
                 } else {
-                    throw new Error('Network response was not ok');
+                    localStorage.setItem('rememberMe', false);
+                    window.location.href = "/"
                 }
             })
             .catch(error => {
                 // Handle errors
-                return null;
+                
+                window.location.href = "/"
             });
     };
     
@@ -207,7 +210,6 @@ const Contacts = ({isCreateOpen, setIsCreateOpen}) => {
             );
         setFilteredPeople(filter);
         }
-        
     }
 
     const handleDelete = async (person) => {

@@ -30,7 +30,7 @@ const HomePage = () => {
                 <CreateContact isCreateOpen = {open}
                 setIsCreateOpen={setOpen}/>    
             </div>
-        <Footer/>
+        
     </div>
             
     

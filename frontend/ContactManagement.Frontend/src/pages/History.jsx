@@ -1,5 +1,4 @@
-import { PencilIcon } from "@heroicons/react/20/solid";
-import { ArrowDownTrayIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import {format} from 'date-fns';
 import NavBar from "../components/header/Navbar";
 import axios from "axios";
 import {
@@ -105,6 +104,7 @@ const History =() => {
                 },
                 index,
               ) => {
+                const formattedTimeStamp = format(new Date(timeStamp), 'MM-dd-yyyy HH:mm:ss');
                 const isLast = index === tableRows.length - 1;
                 const classes = isLast
                   ? "p-4"
@@ -120,7 +120,7 @@ const History =() => {
                           color="blue-gray"
                           className="font-bold"
                         >
-                          {timeStamp}
+                          {formattedTimeStamp}
                         </Typography>
                       </div>
                     </td>
@@ -178,20 +178,22 @@ const History =() => {
         disabled ={currentPage===1}>
           Previous
         </Button>
-        <div className="flex items-center gap-2">
+        {/* <div className="flex items-center gap-2">
             {Array.from({ length: totalPages }, (_, index) => (
                 <IconButton
-                key={index}
-                variant="text"
-                size="sm"
-                onClick={() => setCurrentPage(index + 1)}
-                // Add styling to highlight the active page button
-                className={currentPage === index + 1 ? "bg-blue-500 text-gray-500" : ""}
+                    key={index}
+                    variant="text"
+                    size="sm"
+                    onClick={() => setCurrentPage(currentPage + 1)}
+                    // Apply the active class based on the currentPage
+                    className={`${
+                        currentPage === index + 1 ? "bg-blue-500 text-gray-500" : ""
+                    }`}
                 >
-                {index + 1}
+                    {index + 1}
                 </IconButton>
             ))}
-        </div>
+        </div> */}
         <Button variant="outlined" 
         size="sm"
         onClick={()=> setCurrentPage(currentPage+1)}
