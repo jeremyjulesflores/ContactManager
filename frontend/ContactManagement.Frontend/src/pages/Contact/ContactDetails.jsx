@@ -118,8 +118,10 @@ const updateNote = () =>{
       emailAddress : req.emailAddress,
       type : req.type,
       contactId : Id,
-      emailId : req.emailId
+      emailId : req.childId
     }
+    console.log(req);
+    console.log(request);
     return updateEmail(request);
     
   }
