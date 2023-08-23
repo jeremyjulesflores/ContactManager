@@ -30,6 +30,7 @@ export default function Signup(){
     const field = fields.find(field => field.id === inputId);
     const maxLengthLimit = field ? field.maxLength : 50; // Default to 50 if field not found
     const minLengthLimit = field? field.minLength : 1;//Default is 1
+    console.log(minLengthLimit);
     if (inputValue.length > maxLengthLimit) {
         return;
     }

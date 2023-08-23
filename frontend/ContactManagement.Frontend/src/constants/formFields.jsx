@@ -71,8 +71,8 @@ const signupFields=[
         autoComplete:"email",
         isRequired:true,
         placeholder:"Email address",
-        minLength: 1,
-        maxLength: 200,      
+        minLength: 3,
+        maxLength: 50,      
     },
     {
         labelText:"Password",
@@ -82,7 +82,9 @@ const signupFields=[
         type:"password",
         autoComplete:"current-password",
         isRequired:true,
-        placeholder:"Password"   
+        placeholder:"Password",
+        minLength: 1,   
+        maxLength: 15, 
     },
     {
         labelText:"Confirm Password",
@@ -92,7 +94,9 @@ const signupFields=[
         type:"password",
         autoComplete:"confirm-password",
         isRequired:true,
-        placeholder:"Confirm Password"   
+        placeholder:"Confirm Password",
+        minLength: 1,   
+        maxLength: 15, 
     }
 
 
