@@ -47,7 +47,20 @@ export default function Signup(){
     }));
     }
 
-
+    console.log(e.target.name);
+    if(e.target.name === "confirm-password"){
+      if(inputValue !== signupState.password){
+        setFieldErrors((prevErrors) => ({
+          ...prevErrors,
+          [inputId]: 'Password do not match',
+      }));
+      }else{
+        setFieldErrors((prevErrors) => ({
+          ...prevErrors,
+          [inputId]: '', // Clear the error when within limit
+      }));
+      }
+    }
     
     setSignupState(prevState => ({
         ...prevState,
@@ -116,7 +129,7 @@ export default function Signup(){
         <div className="">
         {
                 fields.map(field=>
-                  <div key={field.id}>
+                  <div key={field.id} className="mb-2 mt-0">
                         <Input
                             key={field.id}
                             handleChange={handleChange}
