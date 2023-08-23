@@ -16,6 +16,7 @@ export default function Login(){
     const [loginState,setLoginState]=useState(fieldsState);
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [fieldErrors, setFieldErrors] = useState({});
     const[rememberMe, setRememberMe] = useState(false);
 
     useEffect(()=>{
@@ -33,6 +34,30 @@ export default function Login(){
     }
 
     const handleChange=(e)=>{
+      const inputId = e.target.id;
+      const inputValue = e.target.value;
+  
+      // Find the corresponding field's maxLength from signupFields array
+      const field = fields.find(field => field.id === inputId);
+      const maxLengthLimit = field ? field.maxLength : 50; // Default to 50 if field not found
+      const minLengthLimit = field? field.minLength : 1;//Default is 1
+      if (inputValue.length > maxLengthLimit) {
+          return;
+      }
+  
+      if(inputValue.length < minLengthLimit){
+          setFieldErrors((prevErrors) => ({
+            ...prevErrors,
+            [inputId]: `Need atleast ${minLengthLimit} characters for this field`,
+        }));
+      }else{
+        setFieldErrors((prevErrors) => ({
+          ...prevErrors,
+          [inputId]: '', // Clear the error when within limit
+      }));
+      }
+  
+
         setLoginState({...loginState,[e.target.id]:e.target.value})
 
     }
@@ -107,7 +132,10 @@ export default function Login(){
         if(error.response){
           if(error.response.status === 401){
             setError("Invalid Credentials");
-          }else{
+          }else if(error.response.status === 500){
+            setError("Server Error");          
+          }
+          else{
             setError("Something went wrong");
           }
         }else if (error.message === "Network Error"){
@@ -127,6 +155,7 @@ export default function Login(){
         <div className="-space-y-px">
             {
                 fields.map(field=>
+                  <div key={field.id}>
                         <Input
                             key={field.id}
                             handleChange={handleChange}
@@ -139,6 +168,8 @@ export default function Login(){
                             isRequired={field.isRequired}
                             placeholder={field.placeholder}
                     />
+                    {fieldErrors[field.id] && <p className="text-red-500">{fieldErrors[field.id]}</p>}
+                    </div>
                 
                 )
             }

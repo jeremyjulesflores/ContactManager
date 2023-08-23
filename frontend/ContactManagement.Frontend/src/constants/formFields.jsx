@@ -7,7 +7,9 @@ const loginFields=[
         type:"text",
         autoComplete:"username",
         isRequired:true,
-        placeholder:"Username"   
+        placeholder:"Username",
+        minLength: 6,
+        maxLength: 15,     
     },
     {
         labelText:"Password",
@@ -17,7 +19,8 @@ const loginFields=[
         type:"password",
         autoComplete:"current-password",
         isRequired:true,
-        placeholder:"Password"   
+        placeholder:"Password",
+        minLength: 1  
     }
 ]
 
@@ -30,7 +33,9 @@ const signupFields=[
         type:"text",
         autoComplete:"firstname",
         isRequired:true,
-        placeholder:"First Name"   
+        placeholder:"First Name",
+        minLength: 1,
+        maxLength: 30,
     },
     {
         labelText:"Last Name",
@@ -40,7 +45,10 @@ const signupFields=[
         type:"text",
         autoComplete:"lastname",
         isRequired:true,
-        placeholder:"Last Name"   
+        placeholder:"Last Name",
+        minLength: 1,
+        maxLength: 30,
+           
     },
     {
         labelText:"Username",
@@ -50,7 +58,9 @@ const signupFields=[
         type:"text",
         autoComplete:"username",
         isRequired:true,
-        placeholder:"Username"   
+        placeholder:"Username",
+        minLength: 6,
+        maxLength: 15,   
     },
     {
         labelText:"Email address",
@@ -60,7 +70,9 @@ const signupFields=[
         type:"email",
         autoComplete:"email",
         isRequired:true,
-        placeholder:"Email address"   
+        placeholder:"Email address",
+        minLength: 1,
+        maxLength: 200,      
     },
     {
         labelText:"Password",
