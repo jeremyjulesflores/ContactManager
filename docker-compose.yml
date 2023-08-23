@@ -1,0 +1,18 @@
+services:
+
+  api:
+    build:
+      context: backend/
+      dockerfile: Dockerfile
+    ports:
+     - 7274:80
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTPS_PORT=7274
+    
+  frontend:
+    build:
+      context: frontend/ContactManagement.Frontend/
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"

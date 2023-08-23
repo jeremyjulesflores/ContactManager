@@ -33,7 +33,7 @@ export default function CreateContact({isCreateOpen, setIsCreateOpen}) {
     const createContact = async () =>{
         try{
             const authToken = localStorage.getItem('authToken');
-            await axios.post("https://localhost:7274/api/contacts", {
+            await axios.post("http://localhost:7274/api/contacts", {
               firstname : contactCreateState.firstname,
               lastname : contactCreateState.lastname,
             }, {

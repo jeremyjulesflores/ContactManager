@@ -1,0 +1,41 @@
+# Exclude build artifacts and directories
+**/bin/
+**/obj/
+**/global.json
+
+# Exclude Docker-related files
+**/Dockerfile*
+**/.dockerignore*
+
+# Exclude user-specific files
+**/*.user
+
+# Exclude Node.js and JavaScript/TypeScript specific files (add these if applicable)
+**/node_modules/
+**/package-lock.json
+**/yarn.lock
+
+# Exclude IDE-specific files (add these if applicable)
+**/.vscode/
+**/.idea/
+
+# Exclude test files and directories (add these if applicable)
+**/tests/
+**/test_data/
+
+# Exclude logs and temporary files (add these if applicable)
+**/*.log
+
+# Exclude documentation files and README files (add these if applicable)
+**/doc/
+**/docs/
+**/README.md
+
+# Exclude environment-specific configuration files (add these if applicable)
+**/.env
+
+# Exclude editor-specific configuration files (add these if applicable)
+**/.editorconfig
+
+# Exclude temporary build artifacts or cache files (add these if applicable)
+**/.cache/

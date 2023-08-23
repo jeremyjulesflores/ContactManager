@@ -34,7 +34,7 @@ export default function Signup(){
   //handle Signup API Integration here
   const createAccount= async () => {
       try{
-        await axios.post("https://localhost:7274/api/users/register", {
+        await axios.post("http://localhost:7274/api/users/register", {
               firstname : signupState.firstname,
               lastname : signupState.lastname,
               username: signupState.username,

@@ -40,7 +40,7 @@ const ContactDetails = () => {
         'Authorization': `Bearer ${authToken}`,
         'Content-Type': 'application/json'
     }
-    return await axios.get(`https://localhost:7274/api/contacts/${Id}`, { headers })
+    return await axios.get(`http://localhost:7274/api/contacts/${Id}`, { headers })
       .then(response => {
         if (response.status === 200) {
             return response.data;

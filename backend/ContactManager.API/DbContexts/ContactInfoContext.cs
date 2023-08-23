@@ -21,6 +21,11 @@ namespace ContactManager.API.DbContexts
 
         }
 
+        public void Initialize(){
+            Database.Migrate();
+            SaveChanges();
+        }
+
         //protected override void OnModelCreating(ModelBuilder modelBuilder)
         //{
         //    //modelBuilder.Entity<User>().HasData(

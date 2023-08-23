@@ -48,7 +48,7 @@ export default function Login(){
    
     const isAuthTokenValid = async (authToken) =>{
       try{
-        const response = await axios.post('https://localhost:7274/api/users/check', {
+        const response = await axios.post('http://localhost:7274/api/users/check', {
           token : authToken,
           username : loginState.username
         }, {
@@ -77,7 +77,7 @@ export default function Login(){
     //Authenticate VIA API
     const authenticateUser = async () =>{
       try{
-        await axios.post("https://localhost:7274/api/users/login", {
+        await axios.post("http://localhost:7274/api/users/login", {
           username: loginState.username,
           password: loginState.password
         }, {

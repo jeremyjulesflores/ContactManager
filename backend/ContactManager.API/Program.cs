@@ -90,6 +90,11 @@ builder.Services.AddScoped<IContactLogsService, ContactLogsService>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 var app = builder.Build();
 
+using(var scope = app.Services.CreateScope()){
+    var db = scope.ServiceProvider.GetRequiredService<ContactInfoContext>();
+    db.Initialize();
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -97,7 +102,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseRouting();
 app.UseCors();

@@ -21,7 +21,7 @@ const Contacts = ({isCreateOpen, setIsCreateOpen}) => {
             'Authorization': `Bearer ${authToken}`,
             'Content-Type': 'application/json'
         }
-        return await axios.get('https://localhost:7274/api/contacts/', { headers })
+        return await axios.get('http://localhost:7274/api/contacts/', { headers })
             .then(response => {
                 if (response.status === 200) {
                     return response.data;
@@ -106,7 +106,7 @@ const Contacts = ({isCreateOpen, setIsCreateOpen}) => {
                 }
             ];
     
-            await axios.patch(`https://localhost:7274/api/contacts/${person.id}`, patchDocument, { headers });
+            await axios.patch(`http://localhost:7274/api/contacts/${person.id}`, patchDocument, { headers });
             // UPDATE THE PERSON TOGGLED
             const updatedPerson = {...person, favorite: !person.favorite};
 
@@ -163,7 +163,7 @@ const Contacts = ({isCreateOpen, setIsCreateOpen}) => {
                 value: !person.emergency
             }
         ];
-        await axios.patch(`https://localhost:7274/api/contacts/${person.id}`, patchDocument, { headers });
+        await axios.patch(`http://localhost:7274/api/contacts/${person.id}`, patchDocument, { headers });
 
         // UPDATE THE PERSON TOGGLED
         const updatedPerson = {...person, emergency: !person.emergency};
@@ -216,7 +216,7 @@ const Contacts = ({isCreateOpen, setIsCreateOpen}) => {
         try{
 
             const authToken = localStorage.getItem('authToken');
-            await axios.delete(`https://localhost:7274/api/contacts/${person.id}`, {
+            await axios.delete(`http://localhost:7274/api/contacts/${person.id}`, {
                 headers: {
                     'Authorization': `Bearer ${authToken}`,
                     'Content-Type': 'application/json'
