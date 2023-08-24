@@ -178,7 +178,7 @@ const Details = ({
                     <Popup
                         open ={updatePopOpen}
                         setOpen={setUpdatePopOpen}
-                        bigText= {`Updated ${title}`}
+                        bigText= {`Updated ${title}`} 
                         body = {
                         <p className="text-sm text-gray-500">
                             {title} Updated Successfully
