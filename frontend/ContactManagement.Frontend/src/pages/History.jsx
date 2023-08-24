@@ -27,7 +27,7 @@ const History =() => {
       try{
       
           const authToken = localStorage.getItem('authToken');
-          return await axios.get(`https://localhost:7274/api/auditlogs`,{
+          return await axios.get(`http://localhost:7274/api/auditlogs`,{
               headers: {
                   'Authorization': `Bearer ${authToken}`,
                   'Content-Type': 'application/json'
@@ -71,7 +71,7 @@ const History =() => {
           </div>
         </div>
       </CardHeader>
-      <CardBody className="overflow-scroll px-0">
+      <CardBody className="overflow-x-auto px-0">
         <table className="w-full min-w-max table-auto text-left">
           <thead>
             <tr>

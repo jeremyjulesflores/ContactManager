@@ -1,0 +1,40 @@
+version: '3.8'
+services:
+  api:
+    image: jejuflores/contactmanagement-api:latest
+    ports:
+      - "7274:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTPS_PORT=7295
+  
+  frontend:
+    image: jejuflores/contactmanagement-frontend:latest
+    ports:
+      - "5173:5173"
+
+
+
+
+
+
+
+#This build dockerfile , while the other uses the image pushed on dockerhub
+# services:
+
+#   api:
+#     build:
+#       context: backend/
+#       dockerfile: Dockerfile
+#     ports:
+#      - 7274:80
+#     environment:
+#       - ASPNETCORE_ENVIRONMENT=Development
+#       - ASPNETCORE_HTTPS_PORT=7274
+    
+#   frontend:
+#     build:
+#       context: frontend/ContactManagement.Frontend/
+#       dockerfile: Dockerfile
+#     ports:
+#       - "5173:5173"

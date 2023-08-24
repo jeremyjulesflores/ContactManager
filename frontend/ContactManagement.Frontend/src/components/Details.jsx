@@ -102,7 +102,7 @@ const Details = ({
                   <PencilSquareIcon className="h-7 w-4 text-gray-500 hover:text-green-400" onClick = {() =>{setError(''); setInputText(object[details]); setUpdateOpen(true); {setCurrObject(object)}}}/>
                   <TrashIcon className="h-7 w-4 text-gray-500 hover:text-red-400" onClick={()=>{setCurrObject(object);{setDeletePopOpen(true)}}}/>
                 </div>
-                <p>{object.type}</p>
+                <p className="text-gray-400">{object.type}</p>
               </div>
             ))}
             <PlusIcon className ="mt-5 h-5 w-5 text-gray-500 hover:text-green-400" onClick={()=>{setInputText(''); setError(''); {setOpen(true)}}}/>
@@ -178,7 +178,7 @@ const Details = ({
                     <Popup
                         open ={updatePopOpen}
                         setOpen={setUpdatePopOpen}
-                        bigText= {`Updated ${title}`}
+                        bigText= {`Updated ${title}`} 
                         body = {
                         <p className="text-sm text-gray-500">
                             {title} Updated Successfully
@@ -198,6 +198,7 @@ const Details = ({
                 </p>}
             buttonText= "Ok"
             onClickHandler={handleDeleteSubmit}
+            cancelButton="true"
         />
       </dd>
   )

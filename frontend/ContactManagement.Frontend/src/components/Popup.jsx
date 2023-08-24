@@ -7,7 +7,8 @@ const Popup = ({
         bigText,
         body,
         buttonText,
-        onClickHandler
+        onClickHandler,
+        cancelButton
 
     }) => {
     const cancelButtonRef = useRef(null)
@@ -62,6 +63,16 @@ const Popup = ({
                   >
                     {buttonText}
                   </button>
+                  {cancelButton && ( // Conditionally render the cancel button
+                  <button
+                    type="button"
+                    className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:w-auto sm:text-sm"
+                    onClick={() => setOpen(false)} // Close the dialog when cancel button is clicked
+                    ref={cancelButtonRef} // Set the cancel button ref
+                  >
+                    Cancel
+                  </button>
+                  )}
                 </div>
               </Dialog.Panel>
             </Transition.Child>

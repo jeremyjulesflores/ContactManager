@@ -7,7 +7,9 @@ const loginFields=[
         type:"text",
         autoComplete:"username",
         isRequired:true,
-        placeholder:"Username"   
+        placeholder:"Username",
+        minLength: 6,
+        maxLength: 15,     
     },
     {
         labelText:"Password",
@@ -17,7 +19,8 @@ const loginFields=[
         type:"password",
         autoComplete:"current-password",
         isRequired:true,
-        placeholder:"Password"   
+        placeholder:"Password",
+        minLength: 1  
     }
 ]
 
@@ -30,7 +33,9 @@ const signupFields=[
         type:"text",
         autoComplete:"firstname",
         isRequired:true,
-        placeholder:"First Name"   
+        placeholder:"First Name",
+        minLength: 1,
+        maxLength: 30,
     },
     {
         labelText:"Last Name",
@@ -40,7 +45,10 @@ const signupFields=[
         type:"text",
         autoComplete:"lastname",
         isRequired:true,
-        placeholder:"Last Name"   
+        placeholder:"Last Name",
+        minLength: 1,
+        maxLength: 25,
+           
     },
     {
         labelText:"Username",
@@ -50,7 +58,9 @@ const signupFields=[
         type:"text",
         autoComplete:"username",
         isRequired:true,
-        placeholder:"Username"   
+        placeholder:"Username",
+        minLength: 6,
+        maxLength: 15,   
     },
     {
         labelText:"Email address",
@@ -60,7 +70,9 @@ const signupFields=[
         type:"email",
         autoComplete:"email",
         isRequired:true,
-        placeholder:"Email address"   
+        placeholder:"Email address",
+        minLength: 3,
+        maxLength: 50,      
     },
     {
         labelText:"Password",
@@ -70,7 +82,9 @@ const signupFields=[
         type:"password",
         autoComplete:"current-password",
         isRequired:true,
-        placeholder:"Password"   
+        placeholder:"Password",
+        minLength: 1,   
+        maxLength: 15, 
     },
     {
         labelText:"Confirm Password",
@@ -80,7 +94,9 @@ const signupFields=[
         type:"password",
         autoComplete:"confirm-password",
         isRequired:true,
-        placeholder:"Confirm Password"   
+        placeholder:"Confirm Password",
+        minLength: 1,   
+        maxLength: 15, 
     }
 
 
@@ -95,7 +111,9 @@ const createContactFields=[
         type:"text",
         autoComplete:"firstname",
         isRequired:true,
-        placeholder:"First Name"   
+        placeholder:"First Name",
+        minLength: 1,   
+        maxLength: 30,    
     },
     {
         labelText:"Last Name",
@@ -105,9 +123,12 @@ const createContactFields=[
         type:"text",
         autoComplete:"lastname",
         isRequired:true,
-        placeholder:"Last Name"   
+        placeholder:"Last Name",
+        minLength: 1,   
+        maxLength: 25,    
     }
 ]
+
 
 const createChildrenEmail=
     {
@@ -118,7 +139,9 @@ const createChildrenEmail=
         type:"email",
         autoComplete:"email",
         isRequired:true,
-        placeholder:"Email address"   
+        placeholder:"Email address",
+        minLength: 1,   
+        maxLength: 30,    
     }
 
 const createChildrenNumber=
@@ -130,7 +153,9 @@ const createChildrenNumber=
     type:"number",
     autoComplete:"contactnumber",
     isRequired:true,
-    placeholder:"Contact Number"   
+    placeholder:"Contact Number",
+    minLength: 1,   
+    maxLength: 15,    
 }
 
 const createChildrenAddress=
@@ -142,7 +167,9 @@ const createChildrenAddress=
     type:"address",
     autoComplete:"address",
     isRequired:true,
-    placeholder:"Address"   
+    placeholder:"Address",
+    minLength: 1,   
+    maxLength: 200,    
 }
 
 

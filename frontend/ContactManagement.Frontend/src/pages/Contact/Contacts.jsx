@@ -3,6 +3,7 @@ import React, {useState, useEffect} from 'react';
 import { Link, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { data } from 'autoprefixer';
+import Popup from '../../components/Popup';
 
 const Contacts = ({isCreateOpen, setIsCreateOpen}) => {
     const {Id} = useParams();
@@ -13,6 +14,8 @@ const Contacts = ({isCreateOpen, setIsCreateOpen}) => {
     const initialEmergency = localEmergency === 'true';
     const[dataFetched, setDataFetched] = useState(false);
     const [emergency, setEmergency]= useState(initialEmergency);
+    const [deletePopOpen, setDeletePopOpen] = useState(false);
+    const [currentContact, setCurrentContact] = useState(undefined);
 
     const fetchContacts = async () => {
         
@@ -21,7 +24,7 @@ const Contacts = ({isCreateOpen, setIsCreateOpen}) => {
             'Authorization': `Bearer ${authToken}`,
             'Content-Type': 'application/json'
         }
-        return await axios.get('https://localhost:7274/api/contacts/', { headers })
+        return await axios.get('http://localhost:7274/api/contacts/', { headers })
             .then(response => {
                 if (response.status === 200) {
                     return response.data;
@@ -106,7 +109,7 @@ const Contacts = ({isCreateOpen, setIsCreateOpen}) => {
                 }
             ];
     
-            await axios.patch(`https://localhost:7274/api/contacts/${person.id}`, patchDocument, { headers });
+            await axios.patch(`http://localhost:7274/api/contacts/${person.id}`, patchDocument, { headers });
             // UPDATE THE PERSON TOGGLED
             const updatedPerson = {...person, favorite: !person.favorite};
 
@@ -163,7 +166,7 @@ const Contacts = ({isCreateOpen, setIsCreateOpen}) => {
                 value: !person.emergency
             }
         ];
-        await axios.patch(`https://localhost:7274/api/contacts/${person.id}`, patchDocument, { headers });
+        await axios.patch(`http://localhost:7274/api/contacts/${person.id}`, patchDocument, { headers });
 
         // UPDATE THE PERSON TOGGLED
         const updatedPerson = {...person, emergency: !person.emergency};
@@ -212,17 +215,17 @@ const Contacts = ({isCreateOpen, setIsCreateOpen}) => {
         }
     }
 
-    const handleDelete = async (person) => {
+    const handleDelete = async () => {
         try{
 
             const authToken = localStorage.getItem('authToken');
-            await axios.delete(`https://localhost:7274/api/contacts/${person.id}`, {
+            await axios.delete(`http://localhost:7274/api/contacts/${currentContact}`, {
                 headers: {
                     'Authorization': `Bearer ${authToken}`,
                     'Content-Type': 'application/json'
                 }
             })
-            const updatedEmergencyPeople = emergencyPeople.filter(emergencyPerson => emergencyPerson.id !== person.id);
+            const updatedEmergencyPeople = emergencyPeople.filter(emergencyPerson => emergencyPerson.id !== currentContact);
             setEmergencyPeople(updatedEmergencyPeople);
             const contacts = await fetchContacts();
             setPeopleData(contacts);
@@ -232,6 +235,15 @@ const Contacts = ({isCreateOpen, setIsCreateOpen}) => {
         catch(error){
             console.log(error);
             
+        }
+    }
+    const handleDeletePress = async (person) =>{
+        try{
+            setDeletePopOpen(true);
+            setCurrentContact(person.id);
+        }
+        catch(error){
+            console.log(error);
         }
     }
 
@@ -308,7 +320,7 @@ const Contacts = ({isCreateOpen, setIsCreateOpen}) => {
                             />
                         </div>
 
-                        <div onClick={(e) => handleDelete(person)}>
+                        <div onClick={() => handleDeletePress(person)}>
                             <TrashIcon className = "h-6 w-6 cursor-pointer text-gray-200 hover:text-red-500" aria-hidden="true"/>
                         </div>
                     
@@ -316,11 +328,24 @@ const Contacts = ({isCreateOpen, setIsCreateOpen}) => {
                 
                     </div>
             </li>
+            
             </Link>
             ))}
+            <Popup
+            open ={deletePopOpen}
+            setOpen={setDeletePopOpen}
+            bigText={`Delete Contact ?`}
+            body = {
+                <p className="text-sm text-gray-500">
+                    This will permanently delete Contact
+                </p>}
+            buttonText= "Ok"
+            onClickHandler={handleDelete}
+            cancelButton= "true"
+        />
             </ul>
         </div>}</>}
-            
+        
         </div>
       )
 };

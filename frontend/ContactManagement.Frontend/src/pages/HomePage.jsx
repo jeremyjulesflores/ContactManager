@@ -16,12 +16,12 @@ const HomePage = () => {
   
     <div className ="h-screen flex flex-col">
         <NavBar/>
-            <div className ="flex-1 flex overflow-y-hidden">
-                <div className ="w-1/4 overflow-y-auto">
+            <div className ="flex-1 flex flex-col sm:flex-row overflow-y-hidden">
+                <div className ="w-full sm:w-1/4 overflow-y-auto">
                     <Contacts isCreateOpen = {open}
                     setIsCreateOpen={setOpen}/>
                 </div>
-                <div className ="w-3/4 overflow-y-auto">
+                <div className ="w-full sm:w-3/4 overflow-y-auto">
                
                     <ContactDetails/>
                     

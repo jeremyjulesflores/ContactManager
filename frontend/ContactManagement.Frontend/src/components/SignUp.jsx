@@ -18,10 +18,55 @@ export default function Signup(){
   const [signupState,setSignupState]=useState(fieldsState);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState({});
   const navigateToLogIn = () => {
     window.location.href = '/';
   };
-  const handleChange=(e)=>setSignupState({...signupState,[e.target.id]:e.target.value});
+  const handleChange = (e) => {
+    const inputId = e.target.id;
+    const inputValue = e.target.value;
+
+    // Find the corresponding field's maxLength from signupFields array
+    const field = fields.find(field => field.id === inputId);
+    const maxLengthLimit = field ? field.maxLength : 50; // Default to 50 if field not found
+    const minLengthLimit = field? field.minLength : 1;//Default is 1
+    console.log(minLengthLimit);
+    if (inputValue.length > maxLengthLimit) {
+        return;
+    }
+
+    if(inputValue.length < minLengthLimit){
+        setFieldErrors((prevErrors) => ({
+          ...prevErrors,
+          [inputId]: `Need atleast ${minLengthLimit} characters for this field`,
+      }));
+    }else{
+      setFieldErrors((prevErrors) => ({
+        ...prevErrors,
+        [inputId]: '', // Clear the error when within limit
+    }));
+    }
+
+    // check if confirm password is the same with password
+    if(e.target.name === "confirm-password"){
+      if(inputValue !== signupState.password){
+        setFieldErrors((prevErrors) => ({
+          ...prevErrors,
+          [inputId]: 'Password do not match',
+      }));
+      }else{
+        setFieldErrors((prevErrors) => ({
+          ...prevErrors,
+          [inputId]: '', // Clear the error when within limit
+      }));
+      }
+    }
+    
+    setSignupState(prevState => ({
+        ...prevState,
+        [inputId]: inputValue
+    }));
+};
 
   const handleSubmit=(e)=>{
     setError('');
@@ -34,7 +79,7 @@ export default function Signup(){
   //handle Signup API Integration here
   const createAccount= async () => {
       try{
-        await axios.post("https://localhost:7274/api/users/register", {
+        await axios.post("http://localhost:7274/api/users/register", {
               firstname : signupState.firstname,
               lastname : signupState.lastname,
               username: signupState.username,
@@ -58,7 +103,10 @@ export default function Signup(){
         if(error.response){
           if(error.response.status === 400){
             setError("Invalid Credentials");
-          }else{
+          }else if(error.response.status === 500){
+            setError("Server error occurred");
+          }
+          else{
             setError("Something went wrong");
           }
         }else if (error.message === "Network Error"){
@@ -81,6 +129,7 @@ export default function Signup(){
         <div className="">
         {
                 fields.map(field=>
+                  <div key={field.id} className="mb-2 mt-0">
                         <Input
                             key={field.id}
                             handleChange={handleChange}
@@ -93,6 +142,10 @@ export default function Signup(){
                             isRequired={field.isRequired}
                             placeholder={field.placeholder}
                     />
+                    {fieldErrors[field.id] && <p className="text-red-500">{fieldErrors[field.id]}</p>}
+                    </div>
+                    
+         
                 
                 )
             }
