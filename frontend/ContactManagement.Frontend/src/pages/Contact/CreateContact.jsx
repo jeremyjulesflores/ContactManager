@@ -19,8 +19,31 @@ export default function CreateContact({isCreateOpen, setIsCreateOpen}) {
     const [open, setOpen] = useState(false)
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [fieldErrors, setFieldErrors] = useState({});
     const handleChange=(e)=>{
-        setContactCreateState({...contactCreateState,[e.target.id]:e.target.value})
+      const inputId = e.target.id;
+      const inputValue = e.target.value;
+      
+      const field = fields.find(field => field.id === inputId);
+      const maxLengthLimit = field ? field.maxLength : 50; // Default to 50 if field not found
+      const minLengthLimit = field? field.minLength : 1;//Default is 1
+      if (inputValue.length > maxLengthLimit) {
+        return;
+      }
+      if(inputValue.length < minLengthLimit){
+        setFieldErrors((prevErrors) => ({
+          ...prevErrors,
+          [inputId]: `Need atleast ${minLengthLimit} characters for this field`,
+        }));
+      }else{
+        setFieldErrors((prevErrors) => ({
+          ...prevErrors, 
+          [inputId]: '', // Clear the error when within limit
+        }));
+       }
+
+
+       setContactCreateState({...contactCreateState,[e.target.id]:e.target.value})
     }
 
     const handleSubmit=(e)=>{
@@ -136,6 +159,7 @@ export default function CreateContact({isCreateOpen, setIsCreateOpen}) {
                                 {
                                     
                                     fields.map(field=>
+                                      <div key={field.id} className="mb-2 mt-0">
                                             <Input
                                                 key={field.id}
                                                 handleChange={handleChange}
@@ -148,8 +172,10 @@ export default function CreateContact({isCreateOpen, setIsCreateOpen}) {
                                                 isRequired={field.isRequired}
                                                 placeholder={field.placeholder}
                                         />
-                                    
+                                        {fieldErrors[field.id] && <p className="text-red-500">{fieldErrors[field.id]}</p>}
+                                        </div>
                                     )
+                                    
                                 }
                                 {error && <p className="text-red-500">{error}</p>} {/* Display error message if error is not empty */}
                             </div>

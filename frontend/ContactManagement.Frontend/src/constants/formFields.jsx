@@ -47,7 +47,7 @@ const signupFields=[
         isRequired:true,
         placeholder:"Last Name",
         minLength: 1,
-        maxLength: 30,
+        maxLength: 25,
            
     },
     {
@@ -111,7 +111,9 @@ const createContactFields=[
         type:"text",
         autoComplete:"firstname",
         isRequired:true,
-        placeholder:"First Name"   
+        placeholder:"First Name",
+        minLength: 1,   
+        maxLength: 30,    
     },
     {
         labelText:"Last Name",
@@ -121,7 +123,9 @@ const createContactFields=[
         type:"text",
         autoComplete:"lastname",
         isRequired:true,
-        placeholder:"Last Name"   
+        placeholder:"Last Name",
+        minLength: 1,   
+        maxLength: 25,    
     }
 ]
 
@@ -135,7 +139,9 @@ const createChildrenEmail=
         type:"email",
         autoComplete:"email",
         isRequired:true,
-        placeholder:"Email address"   
+        placeholder:"Email address",
+        minLength: 1,   
+        maxLength: 30,    
     }
 
 const createChildrenNumber=
@@ -147,7 +153,9 @@ const createChildrenNumber=
     type:"number",
     autoComplete:"contactnumber",
     isRequired:true,
-    placeholder:"Contact Number"   
+    placeholder:"Contact Number",
+    minLength: 1,   
+    maxLength: 15,    
 }
 
 const createChildrenAddress=
@@ -159,7 +167,9 @@ const createChildrenAddress=
     type:"address",
     autoComplete:"address",
     isRequired:true,
-    placeholder:"Address"   
+    placeholder:"Address",
+    minLength: 1,   
+    maxLength: 200,    
 }
 
 

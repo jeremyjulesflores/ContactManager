@@ -47,7 +47,7 @@ export default function Signup(){
     }));
     }
 
-    console.log(e.target.name);
+    // check if confirm password is the same with password
     if(e.target.name === "confirm-password"){
       if(inputValue !== signupState.password){
         setFieldErrors((prevErrors) => ({
