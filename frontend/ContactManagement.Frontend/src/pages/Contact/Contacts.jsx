@@ -341,6 +341,7 @@ const Contacts = ({isCreateOpen, setIsCreateOpen}) => {
                 </p>}
             buttonText= "Ok"
             onClickHandler={handleDelete}
+            cancelButton= "true"
         />
             </ul>
         </div>}</>}
