@@ -25,6 +25,11 @@
 ![image](https://github.com/jeremyjulesflores/ContactManager/assets/111720888/340e40e9-4a8d-426b-bbe6-a0dcce2e42ef)
 
 
+<h3 align="center">To Do</h3>
+- Multiple address lines
+- better data validations
+
+
 
 <h3 align="center">To Run</h3>
 
